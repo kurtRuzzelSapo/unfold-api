@@ -94,7 +94,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'addstudent':
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->add_students($data));
-
                 break;
             case 'editstudent':
                 // Return JSON-encoded data for adding employees
@@ -109,12 +108,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->add_skill($data));
                 break;
-
             case 'editskill':
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->edit_skill($data, $request[1]));
                 break;
-
             case 'deleteskill':
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->delete_skill($request[1]));
@@ -122,7 +119,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
             case 'addinterest':
                 // Return JSON-encoded data for adding employees
-                echo json_encode($post->add_interest($request[1]));
+                echo json_encode($post->add_interest($data));
                 break;
             case 'editinterest':
                 // Return JSON-encoded data for adding employees
@@ -132,6 +129,33 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->delete_interest($request[1]));
                 break;
+
+            case 'addaccomplishment':
+                // Return JSON-encoded data for adding employees
+                echo json_encode($post->add_accomplishments($data));
+                break;
+            case 'editaccomplishment':
+                // Return JSON-encoded data for adding employees
+                echo json_encode($post->edit_accomplishments($data, $request[1]));
+                break;
+            case 'deleteaccomplishment':
+                // Return JSON-encoded data for adding employees
+                echo json_encode($post->delete_accomplishments($request[1]));
+                break;
+
+            case 'addaboutme':
+                // Return JSON-encoded data for adding employees
+                echo json_encode($post->add_aboutme($data));
+                break;
+            case 'editaboutme':
+                // Return JSON-encoded data for adding employees
+                echo json_encode($post->edit_aboutme($data, $request[1]));
+                break;
+            case 'deleteaboutme':
+                // Return JSON-encoded data for adding employees
+                echo json_encode($post->delete_aboutme($request[1]));
+                break;
+
             case 'login':
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->login($data));

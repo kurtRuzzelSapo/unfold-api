@@ -25,7 +25,7 @@ class Post extends GlobalMethods
         $hashedpassword = password_hash($password, PASSWORD_DEFAULT);
         try {
 
-            $sql = "INSERT INTO students (firstName, lastName, email, password, address, contacts, course,sex,birthdate, school) VALUES (?,?,?,?,?,?,?,?,?,?)";
+            $sql = "INSERT INTO students (firstName, lastName, email, password, address, contacts, course, sex, birthdate, school) VALUES (?,?,?,?,?,?,?,?,?,?)";
 
             $statement = $this->pdo->prepare($sql);
 
@@ -58,7 +58,9 @@ class Post extends GlobalMethods
     {
 
         try {
-            $sql = "UPDATE students SET firstName = ?, lastName = ?, email = ?, password = ?, address = ?, contacts = ?, course = ?, aboutme = ? WHERE studentID = ?";
+            $sql = "UPDATE students 
+            SET firstName = ?, lastName = ?, email = ?, password = ?, address = ?, contacts = ?, course = ?
+            WHERE studentID = ?";            
             $statement = $this->pdo->prepare($sql);
             $statement->execute([
                 $data->firstName,
@@ -68,7 +70,6 @@ class Post extends GlobalMethods
                 $data->address,
                 $data->contacts,
                 $data->course,
-                $data->aboutme,
                 $id
             ]);
             // try {
@@ -126,16 +127,16 @@ class Post extends GlobalMethods
     public function add_skill($data)
     {
         try {
-            $sql = "INSERT INTO skills (nameOfSkill, studentID) VALUES (?,?,?)";
+            $sql = "INSERT INTO skills (skillTitle,skillDesc, studentID) VALUES (?,?)";
 
             $statement = $this->pdo->prepare($sql);
 
             $statement->execute(
-                [
-
-                    $data->nameOfSkill,
-                    $data->studentID,
-                ]
+                    [
+                        $data->skillTitle,
+                        $data->skillDesc,
+                        $data->studentID,
+                    ]
             );
 
             return $this->sendPayload(null, "success", "Successfully add records.", null);
@@ -153,11 +154,12 @@ class Post extends GlobalMethods
     {
 
         try {
-            $sql = "UPDATE skills SET nameOfSkill = ? WHERE studentID = ?";
+            $sql = "UPDATE skills SET skillTitle = ?,skillDesc = ?, WHERE studentID = ?";
             $statement = $this->pdo->prepare($sql);
             $statement->execute([
 
-                $data->nameOfSkill,
+                $data->skillTitle,
+                $data->skillDesc,
                 $id
             ]);
 
@@ -171,7 +173,7 @@ class Post extends GlobalMethods
     public function delete_skill($id)
     {
         try {
-            $sql = " DELETE FROM skill WHERE studentID = ?";
+            $sql = " DELETE FROM skills WHERE studentID = ?";
 
 
             $statement = $this->pdo->prepare($sql);
@@ -202,9 +204,9 @@ class Post extends GlobalMethods
 
             $statement->execute(
                 [
-                    $data->percentage,
+                    $data->title,
                     $data->description,
-                    $data->studentID,
+                    $data->studentID
                 ]
             );
 
@@ -266,17 +268,14 @@ class Post extends GlobalMethods
     public function add_accomplishments($data)
     {
         try {
-            $sql = "INSERT INTO accomplishments (highSchool, SeniorHS, college, addText, studentID) VALUES (?,?,?,?,?)";
-
+            $sql = "INSERT INTO accomplishments ( accomTitle, accomDesc, accomImg, studentID) VALUES (?,?,?,?)";
             $statement = $this->pdo->prepare($sql);
-
             $statement->execute(
                 [
-                    $data->highSchool,
-                    $data->SeniorHS,
-                    $data->college,
-                    $data->addText,
-                    $data->studentID,
+                    $data->accomTitle,
+                    $data->accomDesc,
+                    $data->accomImg,
+                    $data->studentID
                 ]
             );
 
@@ -294,14 +293,13 @@ class Post extends GlobalMethods
     {
 
         try {
-            $sql = "UPDATE accomplishments SET highschool = ?, SeniorHS = ?, college = ?, addText = ?, description = ? WHERE studentID = ?";
+            $sql = "UPDATE accomplishments SET accomTitle = ?, accomDesc = ?, accomImg = ?  WHERE studentID = ?";
             $statement = $this->pdo->prepare($sql);
             $statement->execute([
-                $data->highSchool,
-                $data->SeniorHS,
-                $data->college,
-                $data->addText,
-                $data->description,
+                $data->accomTitle,
+                    $data->accomDesc,
+                    $data->accomImg,
+                    $data->studentID,
                 $id
             ]);
 
@@ -315,7 +313,7 @@ class Post extends GlobalMethods
     public function delete_accomplishments($id)
     {
         try {
-            $sql = " DELETE FROM accomplishments WHERE studentID = ?";
+            $sql = " DELETE FROM accomplishments WHERE accomplishmentID = ?";
 
 
             $statement = $this->pdo->prepare($sql);
@@ -341,14 +339,15 @@ class Post extends GlobalMethods
     public function add_aboutme($data)
     {
         try {
-            $sql = "INSERT INTO aboutme (text,studentID) VALUES (?,?)";
+            $sql = "INSERT INTO aboutme (aboutText,studentID,aboutImg) VALUES (?,?,?)";
 
             $statement = $this->pdo->prepare($sql);
 
             $statement->execute(
                 [
-                    $data->text,
+                    $data->aboutText,
                     $data->studentID,
+                    $data->aboutImg,
                 ]
             );
 
@@ -366,10 +365,11 @@ class Post extends GlobalMethods
     {
 
         try {
-            $sql = "UPDATE aboutme SET text = ?WHERE studentID = ?";
+            $sql = "UPDATE aboutme SET aboutText = ?,aboutImg = ?, WHERE studentID = ?";
             $statement = $this->pdo->prepare($sql);
             $statement->execute([
-                $data->text,
+                $data->aboutText,
+                $data->aboutImg,
                 $id
             ]);
 
@@ -405,6 +405,149 @@ class Post extends GlobalMethods
         return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
     }
 
+    public function add_project($data)
+    {
+        try {
+            $sql = "INSERT INTO project (projectTitle,projectDesc,projectImg,studentID) VALUES (?,?,?)";
+
+            $statement = $this->pdo->prepare($sql);
+
+            $statement->execute(
+                [
+                    $data->projectTitle,
+                    $data->projectDesc,
+                    $data->projectImg,
+                    $data->studentID,
+                    
+                ]
+            );
+
+            return $this->sendPayload(null, "success", "Successfully add records.", null);
+        } catch (\PDOException $e) {
+            $errmsg = $e->getMessage();
+            $code = 400;
+        }
+
+
+        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+    }
+
+    public function edit_project($data, $id)
+    {
+
+        try {
+            $sql = "UPDATE project SET projectTitle = ?,projectDesc = ?,projectImg = ?, WHERE studentID = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([
+                $data->projectTitle,
+                $data->projectDesc,
+                $data->projectImg,
+                $id
+            ]);
+
+            return $this->sendPayload(null, "success", "Successfully updated.", null);
+        } catch (\PDOException $e) {
+            $errmsg = $e->getMessage();
+            $code = 400;
+        }
+    }
+
+    public function delete_project($id)
+    {
+        try {
+            $sql = " DELETE FROM project WHERE studentID = ?";
+
+
+            $statement = $this->pdo->prepare($sql);
+
+            $statement->execute(
+                [
+                    $id
+                ]
+            );
+
+
+            return $this->sendPayload(null, "success", "Successfully deleted.", null);
+        } catch (\PDOException $e) {
+            $errmsg = $e->getMessage();
+            $code = 400;
+        }
+
+
+        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+    }
+
+    public function add_service($data)
+    {
+        try {
+            $sql = "INSERT INTO service (serviceTitle,serviceDesc,studentID) VALUES (?,?,?)";
+
+            $statement = $this->pdo->prepare($sql);
+
+            $statement->execute(
+                [
+                    $data->serviceTitle,
+                    $data->serviceDesc,
+                    $data->studentID,
+                    
+                ]
+            );
+
+            return $this->sendPayload(null, "success", "Successfully add records.", null);
+        } catch (\PDOException $e) {
+            $errmsg = $e->getMessage();
+            $code = 400;
+        }
+
+
+        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+    }
+
+    public function edit_service($data, $id)
+    {
+
+        try {
+            $sql = "UPDATE service SET serviceTitle = ?,serviceDesc = ? WHERE studentID = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([
+                $data->serviceTitle,
+                $data->serviceDesc,
+                $id
+            ]);
+
+            return $this->sendPayload(null, "success", "Successfully updated.", null);
+        } catch (\PDOException $e) {
+            $errmsg = $e->getMessage();
+            $code = 400;
+        }
+    }
+
+    public function delete_service($id)
+    {
+        try {
+            $sql = " DELETE FROM project WHERE studentID = ?";
+
+
+            $statement = $this->pdo->prepare($sql);
+
+            $statement->execute(
+                [
+                    $id
+                ]
+            );
+
+
+            return $this->sendPayload(null, "success", "Successfully deleted.", null);
+        } catch (\PDOException $e) {
+            $errmsg = $e->getMessage();
+            $code = 400;
+        }
+
+
+        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+    }
+
+   
 
     public function login($data)
     {
@@ -417,13 +560,14 @@ class Post extends GlobalMethods
 
             $statement->execute();
             $user = $statement->fetch(PDO::FETCH_OBJ);
+            // $result = $this->executeQuery($sqlString);
 
             if ($user) {
                 // Check if password matches
                 if (password_verify($data->password, $user->password)) {
-                    return $this->sendPayload(null, "success", "Login successful.", null);
+                    return $this->sendPayload($user, "success", "Login successful.", null);
                 } else {
-                    return $this->sendPayload(null, "error", "Incorrect password.", null);
+                    return $this->sendPayload(null, "error", "Incorrect password", null);
                 }
             } else {
                 return $this->sendPayload(null, "error", "Incorrect email", null);

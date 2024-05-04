@@ -9,7 +9,7 @@ set_time_limit(1000);
 
 //define constants for server credentials/configuration
 define("SERVER", "localhost");
-define("DATABASE", "spp_db");
+define("DATABASE", "unfold");
 define("USER", "root");
 define("PASSWORD", "");
 define("DRIVER", "mysql");
