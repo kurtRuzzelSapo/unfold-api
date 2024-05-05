@@ -10,6 +10,28 @@ class Post extends GlobalMethods
     {
         $this->pdo = $pdo;
     }
+
+    public function uploadImage($file, $uploadDirectory)
+    {
+        // Generate a unique filename to prevent overwriting existing files
+        $filename = uniqid() . '_' . $file['name'];
+        $targetPath = $uploadDirectory . $filename;
+
+        // Check if the file is an image
+        $fileType = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
+        $allowedTypes = array('jpg', 'jpeg', 'png', 'gif');
+        if (!in_array($fileType, $allowedTypes)) {
+            return "Error: Only JPG, JPEG, PNG, and GIF files are allowed.";
+        }
+
+        // Move the uploaded file to the specified directory
+        if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+            return "Error: Failed to move uploaded file.";
+        }
+
+        // Return the uploaded filename
+        return $filename;
+    }
     /**
      * Add a new employee with the provided data.
      *
@@ -60,7 +82,7 @@ class Post extends GlobalMethods
         try {
             $sql = "UPDATE students 
             SET firstName = ?, lastName = ?, email = ?, password = ?, address = ?, contacts = ?, course = ?
-            WHERE studentID = ?";            
+            WHERE studentID = ?";
             $statement = $this->pdo->prepare($sql);
             $statement->execute([
                 $data->firstName,
@@ -132,11 +154,11 @@ class Post extends GlobalMethods
             $statement = $this->pdo->prepare($sql);
 
             $statement->execute(
-                    [
-                        $data->skillTitle,
-                        $data->skillDesc,
-                        $data->studentID,
-                    ]
+                [
+                    $data->skillTitle,
+                    $data->skillDesc,
+                    $data->studentID,
+                ]
             );
 
             return $this->sendPayload(null, "success", "Successfully add records.", null);
@@ -265,28 +287,57 @@ class Post extends GlobalMethods
     }
 
 
+    // public function add_accomplishments($data)
+    // {
+    //     try {
+    //         $sql = "INSERT INTO accomplishments ( accomTitle, accomDesc, accomImg, studentID) VALUES (?,?,?,?)";
+    //         $statement = $this->pdo->prepare($sql);
+    //         $statement->execute(
+    //             [
+    //                 $data->accomTitle,
+    //                 $data->accomDesc,
+    //                 $data->accomImg,
+    //                 $data->studentID
+    //             ]
+    //         );
+
+    //         return $this->sendPayload(null, "success", "Successfully add records.", null);
+    //     } catch (\PDOException $e) {
+    //         $errmsg = $e->getMessage();
+    //         $code = 400;
+    //     }
+
+
+    //     return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+    // }
+
     public function add_accomplishments($data)
     {
-        try {
-            $sql = "INSERT INTO accomplishments ( accomTitle, accomDesc, accomImg, studentID) VALUES (?,?,?,?)";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute(
-                [
-                    $data->accomTitle,
-                    $data->accomDesc,
-                    $data->accomImg,
-                    $data->studentID
-                ]
-            );
 
-            return $this->sendPayload(null, "success", "Successfully add records.", null);
+        $accomTitle = $data['accomTitle'];
+        $accomDesc = $data['accomDesc'];
+        $studentId =  $data['studentID'];
+
+        $uploadDirectory = "../files/accomplishments/";
+        try {
+            // Check if a file was uploaded
+            if (isset($_FILES['accomImg']) && $_FILES['accomImg']['error'] === UPLOAD_ERR_OK) {
+                // Call the uploadImage function to handle the file up`load
+                $filename = $this->uploadImage($_FILES['accomImg'], $uploadDirectory);
+                if (!$filename) {
+                    return $this->sendPayload(null, "error", "Failed to upload image.", null);
+                }
+            }
+
+            $sql = "INSERT INTO accomplishments (accomTitle, accomDesc, accomImg, studentID) VALUES (?, ?, ?, ?)";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$accomTitle, $accomDesc, "/files/accomplishments/$filename", $studentId]);
+
+            return $this->sendPayload(null, "success", "Successfully added records.", null);
         } catch (\PDOException $e) {
             $errmsg = $e->getMessage();
-            $code = 400;
+            return $this->sendPayload(null, "error", $errmsg, null);
         }
-
-
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
     }
 
     public function edit_accomplishments($data, $id)
@@ -297,9 +348,9 @@ class Post extends GlobalMethods
             $statement = $this->pdo->prepare($sql);
             $statement->execute([
                 $data->accomTitle,
-                    $data->accomDesc,
-                    $data->accomImg,
-                    $data->studentID,
+                $data->accomDesc,
+                $data->accomImg,
+                $data->studentID,
                 $id
             ]);
 
@@ -336,30 +387,36 @@ class Post extends GlobalMethods
     }
 
 
+
     public function add_aboutme($data)
     {
+
+        $aboutText = $data['aboutText'];
+        $studentId =  $data['studentID'];
+
+        $uploadDirectory = "../files/about-me/";
         try {
+            // Check if a file was uploaded
+            if (isset($_FILES['aboutImg']) && $_FILES['aboutImg']['error'] === UPLOAD_ERR_OK) {
+                // Call the uploadImage function to handle the file up`load
+                $filename = $this->uploadImage($_FILES['aboutImg'], $uploadDirectory);
+                if (!$filename) {
+                    return $this->sendPayload(null, "error", "Failed to upload image.", null);
+                }
+            }
+
             $sql = "INSERT INTO aboutme (aboutText,studentID,aboutImg) VALUES (?,?,?)";
-
             $statement = $this->pdo->prepare($sql);
+            $statement->execute([$aboutText, $studentId, "/files/about-me/$filename"]);
 
-            $statement->execute(
-                [
-                    $data->aboutText,
-                    $data->studentID,
-                    $data->aboutImg,
-                ]
-            );
-
-            return $this->sendPayload(null, "success", "Successfully add records.", null);
+            return $this->sendPayload(null, "success", "Successfully added records.", null);
         } catch (\PDOException $e) {
             $errmsg = $e->getMessage();
-            $code = 400;
+            return $this->sendPayload(null, "error", $errmsg, null);
         }
-
-
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
     }
+
+
 
     public function edit_aboutme($data, $id)
     {
@@ -405,32 +462,36 @@ class Post extends GlobalMethods
         return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
     }
 
+
     public function add_project($data)
     {
+
+        $projectTitle = $data['projectTitle'];
+        $projectDesc = $data['projectDesc'];
+        $studentId =  $data['studentID'];
+
+        $uploadDirectory = "../files/projects/";
         try {
-            $sql = "INSERT INTO project (projectTitle,projectDesc,projectImg,studentID) VALUES (?,?,?)";
+            // Check if a file was uploaded
+            if (isset($_FILES['projectImg']) && $_FILES['projectImg']['error'] === UPLOAD_ERR_OK) {
+                // Call the uploadImage function to handle the file up`load
+                $filename = $this->uploadImage($_FILES['projectImg'], $uploadDirectory);
+                if (!$filename) {
+                    return $this->sendPayload(null, "error", "Failed to upload image.", null);
+                }
+            }
 
+            $sql = "INSERT INTO project (projectTitle, projectDesc, projectImg, studentID) VALUES (?, ?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
+            $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename", $studentId]);
 
-            $statement->execute(
-                [
-                    $data->projectTitle,
-                    $data->projectDesc,
-                    $data->projectImg,
-                    $data->studentID,
-                    
-                ]
-            );
-
-            return $this->sendPayload(null, "success", "Successfully add records.", null);
+            return $this->sendPayload(null, "success", "Successfully added records.", null);
         } catch (\PDOException $e) {
             $errmsg = $e->getMessage();
-            $code = 400;
+            return $this->sendPayload(null, "error", $errmsg, null);
         }
-
-
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
     }
+
 
     public function edit_project($data, $id)
     {
@@ -489,7 +550,7 @@ class Post extends GlobalMethods
                     $data->serviceTitle,
                     $data->serviceDesc,
                     $data->studentID,
-                    
+
                 ]
             );
 
@@ -547,7 +608,7 @@ class Post extends GlobalMethods
         return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
     }
 
-   
+
 
     public function login($data)
     {

@@ -13,6 +13,7 @@ http_response_code(200);
 
 require_once "./modules/get.php";
 require_once "./modules/post.php";
+require_once "./modules/delete.php";
 require_once "./config/database.php";
 
 $con = new Connection();
@@ -20,6 +21,7 @@ $pdo = $con->connect();
 
 $get = new Get($pdo);
 $post = new Post($pdo);
+$delete = new Delete($pdo);
 
 if (isset($_REQUEST['request'])) {
     // Split the request into an array based on '/'
@@ -77,6 +79,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 } else {
                     echo json_encode($get->get_aboutme());
                 }
+
+                break;
+            case 'view-portfolio':
+                echo json_encode($get->view_portfolio($request[1]));
+
+                break;
+
+            case 'get-all-students':
+                echo json_encode($get->get_all_students());
                 break;
 
             default:
@@ -132,7 +143,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
             case 'addaccomplishment':
                 // Return JSON-encoded data for adding employees
-                echo json_encode($post->add_accomplishments($data));
+                echo json_encode($post->add_accomplishments($_POST));
                 break;
             case 'editaccomplishment':
                 // Return JSON-encoded data for adding employees
@@ -145,7 +156,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
             case 'addaboutme':
                 // Return JSON-encoded data for adding employees
-                echo json_encode($post->add_aboutme($data));
+                echo json_encode($post->add_aboutme($_POST));
                 break;
             case 'editaboutme':
                 // Return JSON-encoded data for adding employees
@@ -155,7 +166,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->delete_aboutme($request[1]));
                 break;
-
+            case 'add-project':
+                echo json_encode($post->add_project($_POST));
+                break;
             case 'login':
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->login($data));
@@ -168,6 +181,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 break;
         }
         break;
+
+    case 'DELETE':
+        $data = json_decode(file_get_contents("php://input"));
+        switch ($request[0]) {
+            case 'delete-student':
+                echo json_encode($delete->delete_student($data));
+                break;
+        }
+
+        break;
+
     default:
         // Return a 404 response for unsupported HTTP methods
         echo "Method not available";
