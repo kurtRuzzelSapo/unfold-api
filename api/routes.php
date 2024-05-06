@@ -2,12 +2,12 @@
 header("Access-Control-Allow-Origin: *");
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+    header("Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE");
     header("Access-Control-Allow-Headers: Content-Type");
     http_response_code(200);
     exit;
 }
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE");
 header("Access-Control-Allow-Headers: Content-Type");
 http_response_code(200);
 
@@ -186,7 +186,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $data = json_decode(file_get_contents("php://input"));
         switch ($request[0]) {
             case 'delete-student':
-                echo json_encode($delete->delete_student($data));
+                echo json_encode($delete->delete_student($_GET));
                 break;
         }
 

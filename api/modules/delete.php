@@ -21,11 +21,20 @@ class Delete extends GlobalMethods
 
     public function delete_student($data)
     {
-        header('Content-Type: application/json');
 
-        // Extract student ID from the request data
-        $id = $data->id;
-        $is_admin = $data->is_admin;
+
+        $id = $_GET['id'];
+        $is_admin = $_GET['is_admin'];
+
+
+        if ($id === null || $is_admin === null) {
+            return json_encode(array(
+                "error" => "Parameters 'id' and 'is_admin' are required"
+            ));
+        }
+
+        // Convert is_admin to boolean
+        $is_admin = filter_var($is_admin, FILTER_VALIDATE_BOOLEAN);
 
         try {
             if (!$is_admin) {
@@ -56,7 +65,8 @@ class Delete extends GlobalMethods
             $stmt_delete->execute();
 
             return array(
-                "message" => "Student deleted successfully"
+                "message" => "Student deleted successfully",
+                "status_code" => 200
             );
         } catch (\PDOException $e) {
             // Handle database errors
