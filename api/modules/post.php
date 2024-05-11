@@ -148,30 +148,78 @@ class Post extends GlobalMethods
      */
     public function add_skill($data)
     {
-        try {
-            $sql = "INSERT INTO skills (skillTitle,skillDesc, studentID) VALUES (?,?)";
 
+        $skillTitle = $data['skillTitle'];
+        $skillDesc = $data['skillDesc'];
+        $studentId =  $data['studentID'];
+            try{
+
+            
+
+            $sql = "INSERT INTO skills (skillTitle, skillDesc, studentID) VALUES (?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
+            $statement->execute([$skillTitle, $skillDesc, $studentId]);
 
-            $statement->execute(
-                [
-                    $data->skillTitle,
-                    $data->skillDesc,
-                    $data->studentID,
-                ]
-            );
-
-            return $this->sendPayload(null, "success", "Successfully add records.", null);
+            return $this->sendPayload(null, "success", "Successfully added records.", null);
         } catch (\PDOException $e) {
             $errmsg = $e->getMessage();
-            $code = 400;
+            return $this->sendPayload(null, "error", $errmsg, null);
         }
 
 
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+
+
     }
 
+    public function add_contact($data)
+    {
 
+        $contName = $data['contName'];
+        $contNumber = $data['contNumber'];
+        $contEmail = $data['contEmail'];
+        $contHome = $data['contHome'];
+        $studentId =  $data['studentID'];
+            try{
+
+            
+
+            $sql = "INSERT INTO contact (contName, contNumber,contEmail,contHome, studentID) VALUES (?,?,?,?,?)";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$contName, $contNumber,$contEmail,$contHome, $studentId]);
+
+            return $this->sendPayload(null, "success", "Successfully added records.", null);
+        } catch (\PDOException $e) {
+            $errmsg = $e->getMessage();
+            return $this->sendPayload(null, "error", $errmsg, null);
+        }
+
+
+
+
+    }
+    
+    // try {
+    //     $sql = "INSERT INTO skills (skillTitle,skillDesc, studentID) VALUES (?,?,?)";
+
+    //     $statement = $this->pdo->prepare($sql);
+
+    //     $statement->execute(
+    //         [
+    //             $data->skillTitle,
+    //             $data->skillDesc,
+    //             $data->studentID,
+    //         ]
+    //     );
+
+    //     return $this->sendPayload(null, "success", "Successfully add records.", null);
+    // } catch (\PDOException $e) {
+    //     $errmsg = $e->getMessage();
+    //     $code = 400;
+    // }
+
+
+    // return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+    
     public function edit_skill($data, $id)
     {
 
@@ -219,28 +267,23 @@ class Post extends GlobalMethods
 
     public function add_interest($data)
     {
-        try {
-            $sql = "INSERT INTO interest (title, description, studentID) VALUES (?,?,?)";
+        $skillTitle = $data['skillTitle'];
+        $skillDesc = $data['skillDesc'];
+        $studentId =  $data['studentID'];
+            try{
 
+            
+
+            $sql = "INSERT INTO skills (skillTitle, skillDesc, studentID) VALUES (?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
+            $statement->execute([$skillTitle, $skillDesc, $studentId]);
 
-            $statement->execute(
-                [
-                    $data->title,
-                    $data->description,
-                    $data->studentID
-                ]
-            );
-
-            return $this->sendPayload(null, "success", "Successfully add records.", null);
+            return $this->sendPayload(null, "success", "Successfully added records.", null);
         } catch (\PDOException $e) {
             $errmsg = $e->getMessage();
-            $code = 400;
-        }
-
-
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+            return $this->sendPayload(null, "error", $errmsg, null);
     }
+}
 
     public function edit_interest($data, $id)
     {
@@ -493,25 +536,64 @@ class Post extends GlobalMethods
     }
 
 
-    public function edit_project($data, $id)
-    {
+    public function edit_project($data)
+{
+    $projectId = $data['projectID']; // Assuming you pass the project ID for editing
+    $projectTitle = $data['projectTitle'];
+    $projectDesc = $data['projectDesc'];
+    $studentId =  $data['studentID'];
 
-        try {
-            $sql = "UPDATE project SET projectTitle = ?,projectDesc = ?,projectImg = ?, WHERE studentID = ?";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute([
-                $data->projectTitle,
-                $data->projectDesc,
-                $data->projectImg,
-                $id
-            ]);
-
-            return $this->sendPayload(null, "success", "Successfully updated.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            $code = 400;
+    $uploadDirectory = "../files/projects/";
+    try {
+        // Check if a file was uploaded
+        if (isset($_FILES['projectImg']) && $_FILES['projectImg']['error'] === UPLOAD_ERR_OK) {
+            // Call the uploadImage function to handle the file upload
+            $filename = $this->uploadImage($_FILES['projectImg'], $uploadDirectory);
+            if (!$filename) {
+                return $this->sendPayload(null, "error", "Failed to upload image.", null);
+            }
         }
+
+        // Check if the project ID is provided for editing
+        if (!empty($projectId)) {
+            // If project ID is provided, update the existing project
+            $sql = "UPDATE project SET projectTitle=?, projectDesc=?, projectImg=? WHERE projectId=?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename", $projectId]);
+        } else {
+            // If project ID is not provided, it's a new project, so insert it
+            $sql = "INSERT INTO project (projectTitle, projectDesc, projectImg, studentID) VALUES (?, ?, ?, ?)";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename", $studentId]);
+        }
+
+        return $this->sendPayload(null, "success", "Successfully updated/added records.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        return $this->sendPayload(null, "error", $errmsg, null);
     }
+}
+
+
+    // public function edit_project($data, $id)
+    // {
+
+    //     try {
+    //         $sql = "UPDATE project SET projectTitle = ?,projectDesc = ?,projectImg = ?, WHERE studentID = ?";
+    //         $statement = $this->pdo->prepare($sql);
+    //         $statement->execute([
+    //             $data->projectTitle,
+    //             $data->projectDesc,
+    //             $data->projectImg,
+    //             $id
+    //         ]);
+
+    //         return $this->sendPayload(null, "success", "Successfully updated.", null);
+    //     } catch (\PDOException $e) {
+    //         $errmsg = $e->getMessage();
+    //         $code = 400;
+    //     }
+    // }
 
     public function delete_project($id)
     {
@@ -540,29 +622,24 @@ class Post extends GlobalMethods
 
     public function add_service($data)
     {
-        try {
-            $sql = "INSERT INTO service (serviceTitle,serviceDesc,studentID) VALUES (?,?,?)";
+        $serviceTitle = $data['serviceTitle'];
+        $serviceDesc = $data['serviceDesc'];
+        $studentId =  $data['studentID'];
+            try{
 
+            
+
+            $sql = "INSERT INTO service (serviceTitle, serviceDesc, studentID) VALUES (?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
+            $statement->execute([$serviceTitle, $serviceDesc, $studentId]);
 
-            $statement->execute(
-                [
-                    $data->serviceTitle,
-                    $data->serviceDesc,
-                    $data->studentID,
-
-                ]
-            );
-
-            return $this->sendPayload(null, "success", "Successfully add records.", null);
+            return $this->sendPayload(null, "success", "Successfully added records.", null);
         } catch (\PDOException $e) {
             $errmsg = $e->getMessage();
-            $code = 400;
-        }
-
-
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+            return $this->sendPayload(null, "error", $errmsg, null);
     }
+
+}
 
     public function edit_service($data, $id)
     {

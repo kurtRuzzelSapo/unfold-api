@@ -82,7 +82,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
                 break;
             case 'view-portfolio':
-                echo json_encode($get->view_portfolio($request[1]));
+                echo json_encode($get->view_portfolio($_GET));
 
                 break;
 
@@ -117,7 +117,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
             case 'addskill':
                 // Return JSON-encoded data for adding employees
-                echo json_encode($post->add_skill($data));
+                echo json_encode($post->add_skill($_POST));
                 break;
             case 'editskill':
                 // Return JSON-encoded data for adding employees
@@ -140,7 +140,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->delete_interest($request[1]));
                 break;
-
+            case 'add-contact':
+                    echo json_encode($post->add_contact($_POST));
+                    break;
+            case 'addservice':
+                    echo json_encode($post->add_service($_POST));
+                    break;
             case 'addaccomplishment':
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->add_accomplishments($_POST));
@@ -168,6 +173,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 break;
             case 'add-project':
                 echo json_encode($post->add_project($_POST));
+                break;
+            case 'edit-project':
+                echo json_encode($post->edit_project($_POST));
                 break;
             case 'login':
                 // Return JSON-encoded data for adding employees

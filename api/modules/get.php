@@ -112,9 +112,9 @@ class Get extends GlobalMethods
         return $this->get_records("aboutme", $condition);
     }
 
-    public function view_portfolio($id = null)
-    {
-
+    public function view_portfolio($data)
+    {   
+        $id = $data['id'];
         if ($id === null) {
             // Handle case where $id is not provided
             return array(
@@ -176,6 +176,7 @@ class Get extends GlobalMethods
         }
     }
 
+    
     public function get_all_students()
     {
         $sql = "SELECT * FROM students
