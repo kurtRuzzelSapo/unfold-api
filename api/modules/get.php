@@ -113,7 +113,7 @@ class Get extends GlobalMethods
     }
 
     public function view_portfolio($data)
-    {   
+    {
         $id = $data['id'];
         if ($id === null) {
             // Handle case where $id is not provided
@@ -176,13 +176,17 @@ class Get extends GlobalMethods
         }
     }
 
-    
+
     public function get_all_students()
     {
-        $sql = "SELECT * FROM students
-        WHERE is_admin=0
-        ";
-
+        $sql = "SELECT s.*, a.aboutText
+            FROM students s
+            LEFT JOIN (
+                SELECT studentID, MAX(aboutText) AS aboutText
+                FROM aboutme
+                GROUP BY studentID
+            ) a ON s.studentID = a.studentID
+            WHERE s.is_admin = 0";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
