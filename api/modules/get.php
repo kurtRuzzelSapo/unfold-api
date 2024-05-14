@@ -126,6 +126,13 @@ class Get extends GlobalMethods
             // Initialize an empty array to store the portfolio data
             $portfolio = [];
 
+            // Query for 'students' data
+            $sql_studentinfo = "SELECT * FROM students WHERE studentID = :id LIMIT 1";
+            $stmt_studentinfo = $this->pdo->prepare($sql_studentinfo);
+            $stmt_studentinfo->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt_studentinfo->execute();
+            $portfolio['student'] = $stmt_studentinfo->fetch(PDO::FETCH_ASSOC);
+
             // Query for 'aboutme' data
             $sql_aboutme = "SELECT * FROM aboutme WHERE studentID = :id LIMIT 1";
             $stmt_aboutme = $this->pdo->prepare($sql_aboutme);
