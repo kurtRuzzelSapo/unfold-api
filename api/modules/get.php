@@ -184,25 +184,49 @@ class Get extends GlobalMethods
     }
 
 
+    // public function get_all_students()
+    // {
+    //     $sql = "SELECT s.*, a.aboutText
+    //         FROM students s
+    //         LEFT JOIN (
+    //             SELECT studentID, MAX(aboutText) AS aboutText
+    //             FROM aboutme
+    //             GROUP BY studentID
+    //         ) a ON s.studentID = a.studentID
+    //         WHERE s.is_admin = 0";
+    //     $stmt = $this->pdo->prepare($sql);
+    //     $stmt->execute();
+    //     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+    //     foreach ($students as &$student) {
+    //         unset($student['password']);
+    //     }
+
+    //     return $students;
+    // }
+
     public function get_all_students()
-    {
-        $sql = "SELECT s.*, a.aboutText
+{
+    $sql = "SELECT s.*, a.aboutText, a.aboutImg
             FROM students s
             LEFT JOIN (
-                SELECT studentID, MAX(aboutText) AS aboutText
+                SELECT studentID, 
+                       MAX(aboutText) AS aboutText,
+                       MAX(aboutImg) AS aboutImg
                 FROM aboutme
                 GROUP BY studentID
             ) a ON s.studentID = a.studentID
             WHERE s.is_admin = 0";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
-        $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute();
+    $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-        foreach ($students as &$student) {
-            unset($student['password']);
-        }
-
-        return $students;
+    foreach ($students as &$student) {
+        unset($student['password']);
     }
+
+    return $students;
+}
+
 }

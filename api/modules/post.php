@@ -78,7 +78,7 @@ class Post extends GlobalMethods
     }
     public function edit_students($data, $id)
     {
-
+        
         try {
             $sql = "UPDATE students 
             SET firstName = ?, lastName = ?, email = ?, password = ?, address = ?, contacts = ?, course = ?
@@ -94,17 +94,6 @@ class Post extends GlobalMethods
                 $data->course,
                 $id
             ]);
-            // try {
-            //     $sql = " UPDATE employees SET FIRST_NAME= ? WHERE EMPLOYEE_ID = ?";
-
-            //     $statement = $this->pdo->prepare($sql);
-
-            //     $statement->execute(
-            //         [
-            //             $data->FIRST_NAME,
-            //             $id
-            //         ]
-            //     );
 
             return $this->sendPayload(null, "success", "Successfully updated.", null);
         } catch (\PDOException $e) {
