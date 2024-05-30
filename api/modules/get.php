@@ -84,6 +84,14 @@ class Get extends GlobalMethods
         }
         return $this->get_records("skills", $condition);
     }
+    public function get_service($id = null)
+    {
+        $condition = null;
+        if ($id != null) {
+            $condition = "studentID=$id";
+        }
+        return $this->get_records("service", $condition);
+    }
 
     public function get_interest($id = null)
     {
@@ -134,11 +142,17 @@ class Get extends GlobalMethods
             $portfolio['student'] = $stmt_studentinfo->fetch(PDO::FETCH_ASSOC);
 
             // Query for 'aboutme' data
-            $sql_aboutme = "SELECT * FROM aboutme WHERE studentID = :id LIMIT 1";
+            // $sql_aboutme = "SELECT * FROM aboutme WHERE studentID = :id LIMIT 1";
+            // $stmt_aboutme = $this->pdo->prepare($sql_aboutme);
+            // $stmt_aboutme->bindParam(':id', $id, PDO::PARAM_INT);
+            // $stmt_aboutme->execute();
+            // $portfolio['about'] = $stmt_aboutme->fetch(PDO::FETCH_ASSOC);
+
+            $sql_aboutme = "SELECT * FROM aboutme WHERE studentID = :id";
             $stmt_aboutme = $this->pdo->prepare($sql_aboutme);
             $stmt_aboutme->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt_aboutme->execute();
-            $portfolio['about'] = $stmt_aboutme->fetch(PDO::FETCH_ASSOC);
+            $portfolio['about'] = $stmt_aboutme->fetchAll(PDO::FETCH_ASSOC);
 
             // Query for 'accomplishments' data
             $sql_accomplishments = "SELECT * FROM accomplishments WHERE studentID = :id";

@@ -11,27 +11,50 @@ class Post extends GlobalMethods
         $this->pdo = $pdo;
     }
 
+    // public function uploadImage($file, $uploadDirectory)
+    // {
+    //     // Generate a unique filename to prevent overwriting existing files
+    //     $filename = uniqid() . '_' . $file['name'];
+    //     $targetPath = $uploadDirectory . $filename;
+
+    //     // Check if the file is an image
+    //     $fileType = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
+    //     $allowedTypes = array('.jpg', '.jpeg', '.png', '.gif');
+    //     if (!in_array($fileType, $allowedTypes)) {
+    //         return "Error: Only JPG, JPEG, PNG, and GIF files are allowed.";
+    //     }
+
+    //     // Move the uploaded file to the specified directory
+    //     if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+    //         return "Error: Failed to move uploaded file.";
+    //     }
+
+    //     // Return the uploaded filename
+    //     return $filename;
+    // }
     public function uploadImage($file, $uploadDirectory)
     {
         // Generate a unique filename to prevent overwriting existing files
         $filename = uniqid() . '_' . $file['name'];
         $targetPath = $uploadDirectory . $filename;
-
+    
         // Check if the file is an image
         $fileType = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
-        $allowedTypes = array('jpg', 'jpeg', 'png', 'gif');
+        $allowedTypes = array('jpg', 'jpeg', 'png', 'gif'); // Use lowercase extensions without dot
         if (!in_array($fileType, $allowedTypes)) {
-            return "Error: Only JPG, JPEG, PNG, and GIF files are allowed.";
+            return false; // Return false if file type is not allowed
         }
-
+    
         // Move the uploaded file to the specified directory
         if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
-            return "Error: Failed to move uploaded file.";
+            return false; // Return false if moving the file failed
         }
-
+    
         // Return the uploaded filename
         return $filename;
     }
+    
+
     /**
      * Add a new employee with the provided data.
      *
@@ -209,50 +232,56 @@ class Post extends GlobalMethods
 
     // return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
     
-    public function edit_skill($data, $id)
-    {
+    public function edit_skill($data)
+{
+    $skillID = $data['skillID']; // Assuming you pass the skill ID for editing
+    $skillTitle = $data['skillTitle'];
+    $skillDesc = $data['skillDesc'];
+    $studentId =  $data['studentID'];
 
-        try {
-            $sql = "UPDATE skills SET skillTitle = ?,skillDesc = ?, WHERE studentID = ?";
+    try {
+        // Check if the skill ID is provided for editing
+        if (!empty($skillID)) {
+            // If skill ID is provided, update the existing skill
+            $sql = "UPDATE skills SET skillTitle=?, skillDesc=? WHERE skillID=?";
             $statement = $this->pdo->prepare($sql);
-            $statement->execute([
-
-                $data->skillTitle,
-                $data->skillDesc,
-                $id
-            ]);
-
-            return $this->sendPayload(null, "success", "Successfully updated.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            $code = 400;
-        }
-    }
-
-    public function delete_skill($id)
-    {
-        try {
-            $sql = " DELETE FROM skills WHERE studentID = ?";
-
-
+            $statement->execute([$skillTitle, $skillDesc, $skillID]);
+        } else {
+            // If skill ID is not provided, it's a new skill, so insert it
+            $sql = "INSERT INTO skills (skillTitle, skillDesc, studentID) VALUES (?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
-
-            $statement->execute(
-                [
-                    $id
-                ]
-            );
-
-
-            return $this->sendPayload(null, "success", "Successfully deleted.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            $code = 400;
+            $statement->execute([$skillTitle, $skillDesc, $studentId]);
         }
 
-
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+        return $this->sendPayload(null, "success", "Successfully updated/added records.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        return $this->sendPayload(null, "error", $errmsg, null);
     }
+}
+
+
+
+    // Add this method to post.php
+
+public function delete_skill($id)
+{
+    try {
+        $sql = "DELETE FROM skills WHERE skillID = ?";
+
+        $statement = $this->pdo->prepare($sql);
+
+        $statement->execute([$id]);
+
+        return $this->sendPayload(null, "success", "Successfully deleted.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        // You can choose to handle errors differently here
+    }
+
+    return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+}
+
 
     public function add_interest($data)
     {
@@ -372,51 +401,87 @@ class Post extends GlobalMethods
         }
     }
 
-    public function edit_accomplishments($data, $id)
+    // public function edit_accomplishments($data, $id)
+    // {
+
+    //     try {
+    //         $sql = "UPDATE accomplishments SET accomTitle = ?, accomDesc = ?, accomImg = ?  WHERE studentID = ?";
+    //         $statement = $this->pdo->prepare($sql);
+    //         $statement->execute([
+    //             $data->accomTitle,
+    //             $data->accomDesc,
+    //             $data->accomImg,
+    //             $data->studentID,
+    //             $id
+    //         ]);
+
+    //         return $this->sendPayload(null, "success", "Successfully updated.", null);
+    //     } catch (\PDOException $e) {
+    //         $errmsg = $e->getMessage();
+    //         $code = 400;
+    //     }
+    // }
+    public function edit_accomplishments($data)
     {
-
+        $accomId = $data['accomID']; // Assuming you pass the project ID for editing
+        $accomTitle = $data['accomTitle'];
+        $accomDesc = $data['accomDesc'];
+        $studentId =  $data['studentID'];
+    
+        $uploadDirectory = "../files/accomplishments/";
         try {
-            $sql = "UPDATE accomplishments SET accomTitle = ?, accomDesc = ?, accomImg = ?  WHERE studentID = ?";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute([
-                $data->accomTitle,
-                $data->accomDesc,
-                $data->accomImg,
-                $data->studentID,
-                $id
-            ]);
-
-            return $this->sendPayload(null, "success", "Successfully updated.", null);
+            // Check if a file was uploaded
+            if (isset($_FILES['accomImg']) && $_FILES['accomImg']['error'] === UPLOAD_ERR_OK) {
+                // Call the uploadImage function to handle the file upload
+                $filename = $this->uploadImage($_FILES['accomImg'], $uploadDirectory);
+                if (!$filename) {
+                    return $this->sendPayload(null, "error", "Failed to upload image.", null);
+                }
+            }
+    
+            // Check if the project ID is provided for editing
+            if (!empty($accomId)) {
+                // If project ID is provided, update the existing project
+                $sql = "UPDATE accomplishments SET accomTitle=?, accomDesc=?, accomImg=? WHERE accomID=?";
+                $statement = $this->pdo->prepare($sql);
+                $statement->execute([$accomTitle, $accomDesc, "/files/accomplishments/$filename", $accomId]);
+            } else {
+                // If project ID is not provided, it's a new project, so insert it
+                $sql = "UPDATE accomplishments SET accomTitle=?, accomDesc=?, accomImg=? WHERE accomID=?";
+                $statement = $this->pdo->prepare($sql);
+                $statement->execute([$accomTitle, $accomDesc, "/files/accomplishments/$filename", $accomId]);
+            }
+    
+            return $this->sendPayload(null, "success", "Successfully updated/added records.", null);
         } catch (\PDOException $e) {
             $errmsg = $e->getMessage();
-            $code = 400;
+            return $this->sendPayload(null, "error", $errmsg, null);
         }
     }
 
-    public function delete_accomplishments($id)
-    {
-        try {
-            $sql = " DELETE FROM accomplishments WHERE accomplishmentID = ?";
+    // Add this code to post.php
 
+// Add this method to post.php
 
-            $statement = $this->pdo->prepare($sql);
+public function delete_accomplishment($id)
+{
+    try {
+        $sql = "DELETE FROM accomplishments WHERE accomID = ?";
 
-            $statement->execute(
-                [
-                    $id
-                ]
-            );
+        $statement = $this->pdo->prepare($sql);
 
+        $statement->execute([$id]);
 
-            return $this->sendPayload(null, "success", "Successfully deleted.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            $code = 400;
-        }
-
-
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+        return $this->sendPayload(null, "success", "Successfully deleted.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        // You can choose to handle errors differently here
     }
+
+    return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+}
+
+
 
 
 
@@ -584,31 +649,25 @@ class Post extends GlobalMethods
     //     }
     // }
 
-    public function delete_project($id)
-    {
-        try {
-            $sql = " DELETE FROM project WHERE studentID = ?";
 
+    // Add this code to post.php
 
-            $statement = $this->pdo->prepare($sql);
+public function delete_project($id)
+{
+    try {
+        $sql = "DELETE FROM project WHERE projectID = ?";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute([$id]);
 
-            $statement->execute(
-                [
-                    $id
-                ]
-            );
-
-
-            return $this->sendPayload(null, "success", "Successfully deleted.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            $code = 400;
-        }
-
-
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+        return $this->sendPayload(null, "success", "Successfully deleted project.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        return $this->sendPayload(null, "error", $errmsg, null);
     }
+}
 
+
+    
     public function add_service($data)
     {
         $serviceTitle = $data['serviceTitle'];
@@ -630,49 +689,56 @@ class Post extends GlobalMethods
 
 }
 
-    public function edit_service($data, $id)
-    {
+public function edit_service($data)
+{
+    $serviceID = $data['serviceID']; // Assuming you pass the service ID for editing
+    $serviceTitle = $data['serviceTitle'];
+    $serviceDesc = $data['serviceDesc'];
+    $studentId =  $data['studentID'];
 
-        try {
-            $sql = "UPDATE service SET serviceTitle = ?,serviceDesc = ? WHERE studentID = ?";
+    try {
+        // Check if the service ID is provided for editing
+        if (!empty($serviceID)) {
+            // If service ID is provided, update the existing service
+            $sql = "UPDATE service SET serviceTitle=?, serviceDesc=? WHERE serviceID=?";
             $statement = $this->pdo->prepare($sql);
-            $statement->execute([
-                $data->serviceTitle,
-                $data->serviceDesc,
-                $id
-            ]);
-
-            return $this->sendPayload(null, "success", "Successfully updated.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            $code = 400;
-        }
-    }
-
-    public function delete_service($id)
-    {
-        try {
-            $sql = " DELETE FROM project WHERE studentID = ?";
-
-
+            $statement->execute([$serviceTitle, $serviceDesc, $serviceID]);
+        } else {
+            // If service ID is not provided, it's a new service, so insert it
+            $sql = "INSERT INTO service (serviceTitle, serviceDesc, studentID) VALUES (?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
-
-            $statement->execute(
-                [
-                    $id
-                ]
-            );
-
-
-            return $this->sendPayload(null, "success", "Successfully deleted.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            $code = 400;
+            $statement->execute([$serviceTitle, $serviceDesc, $studentId]);
         }
 
-
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+        return $this->sendPayload(null, "success", "Successfully updated/added records.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        return $this->sendPayload(null, "error", $errmsg, null);
     }
+}
+
+
+
+    // Add this method to post.php
+
+public function delete_service($id)
+{
+    try {
+        $sql = "DELETE FROM service WHERE serviceID = ?";
+
+        $statement = $this->pdo->prepare($sql);
+
+        $statement->execute([$id]);
+
+        return $this->sendPayload(null, "success", "Successfully deleted.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        // You can choose to handle errors differently here
+    }
+
+    return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+}
+
 
 
 

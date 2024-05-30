@@ -54,6 +54,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     echo json_encode($get->get_skill());
                 }
                 break;
+                case 'studentservice':
+                // Return JSON-encoded data for getting jobs
+                if (count($request) > 1) {
+                    echo json_encode($get->get_service($request[1]));
+                } else {
+                    echo json_encode($get->get_service());
+                }
+                break;
             case 'studentinterest':
                 // Return JSON-encoded data for getting jobs
                 if (count($request) > 1) {
@@ -65,20 +73,19 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
             case 'studentaccomplisments':
                 // Return JSON-encoded data for getting jobs
-                if (count($request) > 1) {
-                    echo json_encode($get->get_accomplishment($request[1]));
-                } else {
-                    echo json_encode($get->get_accomplishment());
-                }
+                    echo json_encode($get->view_portfolio($_GET));
                 break;
 
             case 'studentaboutme':
                 // Return JSON-encoded data for getting jobs
-                if (count($request) > 1) {
-                    echo json_encode($get->get_aboutme($request[1]));
-                } else {
-                    echo json_encode($get->get_aboutme());
-                }
+                // if (count($request) > 1) {
+                //     echo json_encode($get->get_aboutme($request[1]));
+                // } else {
+                //     echo json_encode($get->get_aboutme());
+                // }
+                echo json_encode($get->view_portfolio($_GET));
+
+                break;
 
                 break;
             case 'view-portfolio':
@@ -121,11 +128,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 break;
             case 'editskill':
                 // Return JSON-encoded data for adding employees
-                echo json_encode($post->edit_skill($data, $request[1]));
-                break;
-            case 'deleteskill':
-                // Return JSON-encoded data for adding employees
-                echo json_encode($post->delete_skill($request[1]));
+                echo json_encode($post->edit_skill($_POST));
                 break;
 
             case 'addinterest':
@@ -146,17 +149,19 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'addservice':
                     echo json_encode($post->add_service($_POST));
                     break;
+            case 'editservice':
+                    echo json_encode($post->edit_service($_POST));
+                break;
             case 'addaccomplishment':
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->add_accomplishments($_POST));
                 break;
+            // case 'editaccomplishment':
+            //     // Return JSON-encoded data for adding employees
+            //     echo json_encode($post->edit_accomplishments($data, $request[1]));
+            //     break;
             case 'editaccomplishment':
-                // Return JSON-encoded data for adding employees
-                echo json_encode($post->edit_accomplishments($data, $request[1]));
-                break;
-            case 'deleteaccomplishment':
-                // Return JSON-encoded data for adding employees
-                echo json_encode($post->delete_accomplishments($request[1]));
+                echo json_encode($post->edit_accomplishments($_POST));
                 break;
 
             case 'addaboutme':
@@ -177,6 +182,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'edit-project':
                 echo json_encode($post->edit_project($_POST));
                 break;
+                case 'delete-project':
+                    $projectId = $_GET['projectId'];
+                    echo json_encode($post->delete_project($projectId));
+                    break;
+                
+                
             case 'login':
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->login($data));
@@ -196,6 +207,48 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'delete-student':
                 echo json_encode($delete->delete_student($_GET));
                 break;
+            case 'delete-project':
+                // Check if project ID is provided in the URL
+                if (isset($request[1])) {
+                    // Call the delete_project method in Post class
+                    echo json_encode($post->delete_project($request[1]));
+                } else {
+                    // If project ID is not provided, return error response
+                    echo json_encode($post->sendPayload(null, "error", "Project ID not provided.", null));
+                    }
+                break;
+            case 'delete-accomplishment':
+            // Check if accomplishment ID is provided in the URL
+            if (isset($request[1])) {
+                // Call the delete_accomplishment method in Post class
+                echo json_encode($post->delete_accomplishment($request[1]));
+            } else {
+                // If accomplishment ID is not provided, return error response
+                echo json_encode($post->sendPayload(null, "error", "Accomplishment ID not provided.", null));
+            }
+            break;
+            case 'delete-skill':
+                // Check if accomplishment ID is provided in the URL
+                if (isset($request[1])) {
+                    // Call the delete_accomplishment method in Post class
+                    echo json_encode($post->delete_skill($request[1]));
+                } else {
+                    // If accomplishment ID is not provided, return error response
+                    echo json_encode($post->sendPayload(null, "error", "Skill ID not provided.", null));
+                }
+            break;
+            case 'delete-service':
+                // Check if accomplishment ID is provided in the URL
+                if (isset($request[1])) {
+                    // Call the delete_accomplishment method in Post class
+                    echo json_encode($post->delete_service($request[1]));
+                } else {
+                    // If accomplishment ID is not provided, return error response
+                    echo json_encode($post->sendPayload(null, "error", "Service ID not provided.", null));
+                }
+            break;
+
+    
         }
 
         break;
