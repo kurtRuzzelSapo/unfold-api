@@ -514,26 +514,48 @@ public function delete_accomplishment($id)
     }
 
 
-
-    public function edit_aboutme($data, $id)
+    public function edit_aboutme($data)
     {
-
+        $aboutId = $data['aboutID']; // Assuming you pass the about ID for editing
+        $aboutText = $data['aboutText'];
+        $aboutImg = $data['aboutImg'];
+        $studentId = $data['studentID'];
+        
+        $uploadDirectory = "../files/accomplishments/";
         try {
-            $sql = "UPDATE aboutme SET aboutText = ?,aboutImg = ?, WHERE studentID = ?";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute([
-                $data->aboutText,
-                $data->aboutImg,
-                $id
-            ]);
-
-            return $this->sendPayload(null, "success", "Successfully updated.", null);
+            // Check if a file was uploaded
+            if (isset($_FILES['aboutImg']) && $_FILES['aboutImg']['error'] === UPLOAD_ERR_OK) {
+                // Call the uploadImage function to handle the file upload
+                $filename = $this->uploadImage($_FILES['aboutImg'], $uploadDirectory);
+                if (!$filename) {
+                    return $this->sendPayload(null, "error", "Failed to upload image.", null);
+                }
+            } else {
+                // If no new image is uploaded, keep the existing image
+                $filename = $aboutImg; // assuming $aboutImg contains the path to the existing image
+            }
+    
+            // Check if the about ID is provided for editing
+            if (!empty($aboutId)) {
+                // If about ID is provided, update the existing record
+                $sql = "UPDATE aboutme SET aboutText=?, aboutImg=? WHERE studentID=?";
+                $statement = $this->pdo->prepare($sql);
+                $statement->execute([$aboutText, $filename, $studentId]);
+            } else {
+                // If about ID is not provided, it's a new record, so insert it
+                $sql = "INSERT INTO aboutme (aboutText, aboutImg, studentID) VALUES (?, ?, ?)";
+                $statement = $this->pdo->prepare($sql);
+                $statement->execute([$aboutText, $filename, $studentId]);
+            }
+    
+            return $this->sendPayload(null, "success", "Successfully updated/added records.", null);
         } catch (\PDOException $e) {
             $errmsg = $e->getMessage();
-            $code = 400;
+            return $this->sendPayload(null, "error", $errmsg, null);
         }
     }
-
+    
+   
     public function delete_aboutme($id)
     {
         try {
@@ -564,6 +586,8 @@ public function delete_accomplishment($id)
     {
 
         $projectTitle = $data['projectTitle'];
+        $projectLink = $data['projectLink'];
+        $projectDate = $data['projectDate'];
         $projectDesc = $data['projectDesc'];
         $studentId =  $data['studentID'];
 
@@ -578,9 +602,9 @@ public function delete_accomplishment($id)
                 }
             }
 
-            $sql = "INSERT INTO project (projectTitle, projectDesc, projectImg, studentID) VALUES (?, ?, ?, ?)";
+            $sql = "INSERT INTO project (projectTitle, projectDesc, projectImg, studentID, projectLink, projectDate) VALUES (?, ?, ?, ?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
-            $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename", $studentId]);
+            $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename", $studentId, $projectLink, $projectDate]);
 
             return $this->sendPayload(null, "success", "Successfully added records.", null);
         } catch (\PDOException $e) {

@@ -76,18 +76,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     echo json_encode($get->view_portfolio($_GET));
                 break;
 
-            case 'studentaboutme':
-                // Return JSON-encoded data for getting jobs
+            // case 'studentaboutme':
+            //     echo json_encode($get->view_portfolio($_GET));
+            //     break;
+
+            // Return JSON-encoded data for getting jobs
                 // if (count($request) > 1) {
                 //     echo json_encode($get->get_aboutme($request[1]));
                 // } else {
                 //     echo json_encode($get->get_aboutme());
-                // }
-                echo json_encode($get->view_portfolio($_GET));
-
-                break;
-
-                break;
+                // }    
             case 'view-portfolio':
                 echo json_encode($get->view_portfolio($_GET));
 
@@ -168,10 +166,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->add_aboutme($_POST));
                 break;
+
             case 'editaboutme':
                 // Return JSON-encoded data for adding employees
-                echo json_encode($post->edit_aboutme($data, $request[1]));
+                echo json_encode($post->edit_aboutme($_POST));
+                
                 break;
+
             case 'deleteaboutme':
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->delete_aboutme($request[1]));

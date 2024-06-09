@@ -161,6 +161,12 @@ class Get extends GlobalMethods
             $stmt_accomplishments->execute();
             $portfolio['accomplishment'] = $stmt_accomplishments->fetchAll(PDO::FETCH_ASSOC);
 
+            $sql_accomplishments = "SELECT * FROM contact WHERE studentID = :id";
+            $stmt_accomplishments = $this->pdo->prepare($sql_accomplishments);
+            $stmt_accomplishments->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt_accomplishments->execute();
+            $portfolio['contact'] = $stmt_accomplishments->fetchAll(PDO::FETCH_ASSOC);
+
             // Query for 'interest' data
             $sql_interest = "SELECT * FROM interest WHERE studentID = :id";
             $stmt_interest = $this->pdo->prepare($sql_interest);
@@ -189,6 +195,13 @@ class Get extends GlobalMethods
             $stmt_skills->execute();
             $portfolio['skill'] = $stmt_skills->fetchAll(PDO::FETCH_ASSOC);
 
+             // Count projects, skills, and accomplishments
+        $portfolio['counts'] = [
+            'projects' => count($portfolio['project']),
+            'technologies' => count($portfolio['skill']),
+            'competitions' => count($portfolio['accomplishment']),
+            'contacts' => count($portfolio['contact']),
+        ];
             // Return the portfolio data
             return $portfolio;
         } catch (\PDOException $e) {
