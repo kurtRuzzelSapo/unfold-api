@@ -618,14 +618,19 @@ public function delete_accomplishment($id)
     }
 
 
+
     public function edit_project($data)
 {
-    $projectId = $data['projectID']; // Assuming you pass the project ID for editing
+    $projectId = $data['projectID'];
     $projectTitle = $data['projectTitle'];
+    $projectLink = $data['projectLink'];
+    $projectDate = $data['projectDate'];
     $projectDesc = $data['projectDesc'];
-    $studentId =  $data['studentID'];
+  
 
     $uploadDirectory = "../files/projects/";
+    $filename = null;
+
     try {
         // Check if a file was uploaded
         if (isset($_FILES['projectImg']) && $_FILES['projectImg']['error'] === UPLOAD_ERR_OK) {
@@ -636,25 +641,92 @@ public function delete_accomplishment($id)
             }
         }
 
-        // Check if the project ID is provided for editing
-        if (!empty($projectId)) {
-            // If project ID is provided, update the existing project
-            $sql = "UPDATE project SET projectTitle=?, projectDesc=?, projectImg=? WHERE projectId=?";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename", $projectId]);
+        // If a new image was uploaded, include it in the update query
+        if ($filename) {
+            $sql = "UPDATE project SET projectTitle = ?, projectDesc = ?, projectImg = ?, projectLink = ?, projectDate = ? WHERE projectID = ?";
+            $params = [$projectTitle, $projectDesc, "/files/projects/$filename",  $projectLink, $projectDate, $projectId];
         } else {
-            // If project ID is not provided, it's a new project, so insert it
-            $sql = "INSERT INTO project (projectTitle, projectDesc, projectImg, studentID) VALUES (?, ?, ?, ?)";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename", $studentId]);
+            // If no new image was uploaded, do not update the projectImg field
+            $sql = "UPDATE project SET projectTitle = ?, projectDesc = ?, projectLink = ?, projectDate = ? WHERE projectID = ?";
+            $params = [$projectTitle, $projectDesc,  $projectLink, $projectDate, $projectId];
         }
 
-        return $this->sendPayload(null, "success", "Successfully updated/added records.", null);
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute($params);
+
+        return $this->sendPayload(null, "success", "Successfully updated records.", null);
     } catch (\PDOException $e) {
         $errmsg = $e->getMessage();
         return $this->sendPayload(null, "error", $errmsg, null);
     }
 }
+
+public function delete_project($id){
+    try {
+        $sql = " DELETE FROM project WHERE projectID = ?";
+
+
+        $statement = $this->pdo->prepare($sql);
+
+        $statement->execute(
+            [
+                $id
+            ]
+        );
+
+
+        return $this->sendPayload(null, "success", "Successfully deleted.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        $code = 400;
+    }
+
+
+    return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+}
+
+
+
+
+
+//     public function edit_project($data)
+// {
+//     $projectId = $data['projectID']; // Assuming you pass the project ID for editing
+//     $projectTitle = $data['projectTitle'];
+//     $projectDesc = $data['projectDesc'];
+    
+
+//     $uploadDirectory = "../files/projects/";
+//     try {
+//         // Check if a file was uploaded
+//         if (isset($_FILES['projectImg']) && $_FILES['projectImg']['error'] === UPLOAD_ERR_OK) {
+//             // Call the uploadImage function to handle the file upload
+//             $filename = $this->uploadImage($_FILES['projectImg'], $uploadDirectory);
+//             if (!$filename) {
+//                 return $this->sendPayload(null, "error", "Failed to upload image.", null);
+//             }
+//         }
+
+//         // Check if the project ID is provided for editing
+//         if (!empty($projectId)) {
+//             // If project ID is provided, update the existing project
+//             $sql = "UPDATE project SET projectTitle=?, projectDesc=?, projectImg=? WHERE projectId=?";
+//             $statement = $this->pdo->prepare($sql);
+//             $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename", $projectId]);
+//         } else {
+//             // If project ID is not provided, it's a new project, so insert it
+//             $sql = "INSERT INTO project (projectTitle, projectDesc, projectImg) VALUES (?, ?, ?)";
+//             $statement = $this->pdo->prepare($sql);
+//             $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename"]);
+//         }
+
+//         return $this->sendPayload(null, "success", "Successfully updated/added records.", null);
+//     } catch (\PDOException $e) {
+//         $errmsg = $e->getMessage();
+//         return $this->sendPayload(null, "error", $errmsg, null);
+//     }
+// }
+
 
 
     // public function edit_project($data, $id)
@@ -680,19 +752,19 @@ public function delete_accomplishment($id)
 
     // Add this code to post.php
 
-public function delete_project($id)
-{
-    try {
-        $sql = "DELETE FROM project WHERE projectID = ?";
-        $statement = $this->pdo->prepare($sql);
-        $statement->execute([$id]);
+// public function delete_project($id)
+// {
+//     try {
+//         $sql = "DELETE FROM project WHERE projectID = ?";
+//         $statement = $this->pdo->prepare($sql);
+//         $statement->execute([$id]);
 
-        return $this->sendPayload(null, "success", "Successfully deleted project.", null);
-    } catch (\PDOException $e) {
-        $errmsg = $e->getMessage();
-        return $this->sendPayload(null, "error", $errmsg, null);
-    }
-}
+//         return $this->sendPayload(null, "success", "Successfully deleted project.", null);
+//     } catch (\PDOException $e) {
+//         $errmsg = $e->getMessage();
+//         return $this->sendPayload(null, "error", $errmsg, null);
+//     }
+// }
 
 
     
