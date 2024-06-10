@@ -183,30 +183,52 @@ class Post extends GlobalMethods
 
     }
 
+    // public function add_contact($data)
+    // {
+    //     $contName = $data['contName'];
+    //     $contEmail = $data['contEmail'];
+    //     $contFB = $data['contFB'];
+    //     $contIG = $data['contIG'];
+    //     $contLinkedin = $data['contLinkedin'];
+    //     $contGithub= $data['contGithub'];
+    //     $studentId =  $data['studentID'];
+    //         try{
+    //         $sql = "INSERT INTO contact (contName, contEmail, contFB, contIG, contLinkedin, contGithub, studentID) VALUES (?,?,?,?,?)";
+    //         $statement = $this->pdo->prepare($sql);
+    //         $statement->execute([$contName, $contEmail, $contFB, $contIG, $contLinkedin, $contGithub, $studentId]);
+
+    //         return $this->sendPayload(null, "success", "Successfully added records.", null);
+    //     } catch (\PDOException $e) {
+    //         $errmsg = $e->getMessage();
+    //         return $this->sendPayload(null, "error", $errmsg, null);
+    //     }
+
+    // }
+
     public function add_contact($data)
     {
+        error_log("Received data: " . json_encode($data));
 
         $contName = $data['contName'];
-        $contNumber = $data['contNumber'];
         $contEmail = $data['contEmail'];
-        $contHome = $data['contHome'];
         $studentId =  $data['studentID'];
+        $contFB = $data['contFB'];
+        $contIG = $data['contIG'];
+        $contLinkedin = $data['contLinkedin'];
+        $contGithub = $data['contGithub'];
             try{
 
             
 
-            $sql = "INSERT INTO contact (contName, contNumber,contEmail,contHome, studentID) VALUES (?,?,?,?,?)";
+            $sql = "INSERT INTO contact (contName, contEmail, studentID, contFB, contIG, contLinkedin, contGithub) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
-            $statement->execute([$contName, $contNumber,$contEmail,$contHome, $studentId]);
+            $statement->execute([$contName, $contEmail, $studentId, $contFB, $contIG,  $contLinkedin, $contGithub]);
 
             return $this->sendPayload(null, "success", "Successfully added records.", null);
         } catch (\PDOException $e) {
             $errmsg = $e->getMessage();
             return $this->sendPayload(null, "error", $errmsg, null);
         }
-
-
-
 
     }
     
@@ -348,34 +370,14 @@ public function delete_skill($id)
     }
 
 
-    // public function add_accomplishments($data)
-    // {
-    //     try {
-    //         $sql = "INSERT INTO accomplishments ( accomTitle, accomDesc, accomImg, studentID) VALUES (?,?,?,?)";
-    //         $statement = $this->pdo->prepare($sql);
-    //         $statement->execute(
-    //             [
-    //                 $data->accomTitle,
-    //                 $data->accomDesc,
-    //                 $data->accomImg,
-    //                 $data->studentID
-    //             ]
-    //         );
-
-    //         return $this->sendPayload(null, "success", "Successfully add records.", null);
-    //     } catch (\PDOException $e) {
-    //         $errmsg = $e->getMessage();
-    //         $code = 400;
-    //     }
-
-
-    //     return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
-    // }
+   
 
     public function add_accomplishments($data)
     {
 
         $accomTitle = $data['accomTitle'];
+        $accomLink = $data['accomLink'];
+        $accomDate = $data['accomDate'];
         $accomDesc = $data['accomDesc'];
         $studentId =  $data['studentID'];
 
@@ -390,9 +392,9 @@ public function delete_skill($id)
                 }
             }
 
-            $sql = "INSERT INTO accomplishments (accomTitle, accomDesc, accomImg, studentID) VALUES (?, ?, ?, ?)";
+            $sql = "INSERT INTO accomplishments (accomTitle, accomDesc, accomImg, studentID, accomLink, accomDate) VALUES (?, ?, ?, ?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
-            $statement->execute([$accomTitle, $accomDesc, "/files/accomplishments/$filename", $studentId]);
+            $statement->execute([$accomTitle, $accomDesc, "/files/accomplishments/$filename", $studentId, $accomLink, $accomDate]);
 
             return $this->sendPayload(null, "success", "Successfully added records.", null);
         } catch (\PDOException $e) {
@@ -400,6 +402,8 @@ public function delete_skill($id)
             return $this->sendPayload(null, "error", $errmsg, null);
         }
     }
+
+
 
     // public function edit_accomplishments($data, $id)
     // {
