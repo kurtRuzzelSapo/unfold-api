@@ -210,6 +210,41 @@ class Get extends GlobalMethods
         }
     }
 
+    public function get_project($data) {
+        $id = $data['projectID'];
+        if ($id === null) {
+            // Handle case where $id is not provided
+            return array(
+                "error" => "Error: Project ID is required"
+            );
+        }
+    
+        try {
+            $payload = [];
+    
+            $sql_project = "SELECT * FROM project WHERE projectID = :id";
+            $stmt_project = $this->pdo->prepare($sql_project);
+            $stmt_project->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt_project->execute();
+            
+            $project = $stmt_project->fetch(PDO::FETCH_ASSOC);
+            if ($project) {
+                $payload['project'] = $project;
+            } else {
+                return array(
+                    "error" => "Error: Project not found"
+                );
+            }
+    
+            return $payload;
+        } catch (\PDOException $e) {
+            // Handle database errors
+            return array(
+                "error" => "Error: " . $e->getMessage()
+            );
+        }
+    }
+    
 
     // public function get_all_students()
     // {

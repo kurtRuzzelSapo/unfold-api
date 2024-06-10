@@ -90,6 +90,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 echo json_encode($get->view_portfolio($_GET));
 
                 break;
+            case 'get-project':
+                echo json_encode($get->get_project($_GET));
+
+                break;
 
             case 'get-all-students':
                 echo json_encode($get->get_all_students());
@@ -172,7 +176,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 echo json_encode($post->edit_aboutme($_POST));
                 
                 break;
-
             case 'deleteaboutme':
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->delete_aboutme($request[1]));
@@ -180,13 +183,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'add-project':
                 echo json_encode($post->add_project($_POST));
                 break;
+               
             case 'edit-project':
                 echo json_encode($post->edit_project($_POST));
                 break;
-                case 'delete-project':
-                    $projectId = $_GET['projectId'];
-                    echo json_encode($post->delete_project($projectId));
-                    break;
+            
                 
                 
             case 'login':
@@ -208,16 +209,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'delete-student':
                 echo json_encode($delete->delete_student($_GET));
                 break;
-            case 'delete-project':
-                // Check if project ID is provided in the URL
-                if (isset($request[1])) {
-                    // Call the delete_project method in Post class
-                    echo json_encode($post->delete_project($request[1]));
-                } else {
-                    // If project ID is not provided, return error response
-                    echo json_encode($post->sendPayload(null, "error", "Project ID not provided.", null));
-                    }
-                break;
+                case 'delete-project':
+                    echo json_encode($delete->delete_project($_GET));
+                    break;
             case 'delete-accomplishment':
             // Check if accomplishment ID is provided in the URL
             if (isset($request[1])) {
