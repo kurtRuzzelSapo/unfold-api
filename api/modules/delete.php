@@ -83,28 +83,28 @@ class Delete extends GlobalMethods
     }
 
     
-public function delete_project($data){
-    $id = $_GET['id'];
-    try {
-        $sql = " DELETE FROM project WHERE projectID = ?";
+// public function delete_project($data){
+//     $id = $_GET['projectId'];
+//     try {
+//         $sql = " DELETE FROM project WHERE projectID = ?";
 
 
-        $statement = $this->pdo->prepare($sql);
+//         $statement = $this->pdo->prepare($sql);
 
-        $statement->execute(
-            [
-                $id
-            ]
-        );
-
-
-        return $this->sendPayload(null, "success", "Successfully deleted.", null);
-    } catch (\PDOException $e) {
-        $errmsg = $e->getMessage();
-        $code = 400;
-    }
+//         $statement->execute(
+//             [
+//                 $id
+//             ]
+//         );
 
 
-    return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
-}
+//         return $this->sendPayload(null, "success", "Successfully deleted.", null);
+//     } catch (\PDOException $e) {
+//         $errmsg = $e->getMessage();
+//         $code = 400;
+//     }
+
+
+//     return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+// }
 }

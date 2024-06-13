@@ -76,14 +76,7 @@ class Get extends GlobalMethods
      * @return string
      *   A string representing the list of jobs.
      */
-    public function get_skill($id = null)
-    {
-        $condition = null;
-        if ($id != null) {
-            $condition = "studentID=$id";
-        }
-        return $this->get_records("skills", $condition);
-    }
+
     public function get_service($id = null)
     {
         $condition = null;
@@ -102,22 +95,73 @@ class Get extends GlobalMethods
         return $this->get_records("interest", $condition);
     }
 
-    public function get_accomplishment($id = null)
-    {
-        $condition = null;
-        if ($id != null) {
-            $condition = "studentID=$id";
+    public function get_accomplishment($data) {
+        $id = $data['accomID'];
+        if ($id === null) {
+            // Handle case where $id is not provided
+            return array(
+                "error" => "Error: Project ID is required"
+            );
         }
-        return $this->get_records("accomplishments", $condition);
+    
+        try {
+            $payload = [];
+    
+            $sql_project = "SELECT * FROM accomplishments WHERE accomID = :id";
+            $stmt_project = $this->pdo->prepare($sql_project);
+            $stmt_project->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt_project->execute();
+            
+            $project = $stmt_project->fetch(PDO::FETCH_ASSOC);
+            if ($project) {
+                $payload['competition'] = $project;
+            } else {
+                return array(
+                    "error" => "Error: Project not found"
+                );
+            }
+    
+            return $payload;
+        } catch (\PDOException $e) {
+            // Handle database errors
+            return array(
+                "error" => "Error: " . $e->getMessage()
+            );
+        }
     }
-
-    public function get_aboutme($id = null)
-    {
-        $condition = null;
-        if ($id != null) {
-            $condition = "studentID=$id";
+    public function get_about($data) {
+        $id = $data['aboutID'];
+        if ($id === null) {
+            // Handle case where $id is not provided
+            return array(
+                "error" => "Error: Project ID is required"
+            );
         }
-        return $this->get_records("aboutme", $condition);
+    
+        try {
+            $payload = [];
+    
+            $sql_project = "SELECT * FROM aboutme WHERE aboutID = :id";
+            $stmt_project = $this->pdo->prepare($sql_project);
+            $stmt_project->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt_project->execute();
+            
+            $project = $stmt_project->fetch(PDO::FETCH_ASSOC);
+            if ($project) {
+                $payload['about'] = $project;
+            } else {
+                return array(
+                    "error" => "Error: About not found"
+                );
+            }
+    
+            return $payload;
+        } catch (\PDOException $e) {
+            // Handle database errors
+            return array(
+                "error" => "Error: " . $e->getMessage()
+            );
+        }
     }
 
     public function view_portfolio($data)
@@ -201,6 +245,7 @@ class Get extends GlobalMethods
             'technologies' => count($portfolio['skill']),
             'competitions' => count($portfolio['accomplishment']),
             'contacts' => count($portfolio['contact']),
+            'about' => count($portfolio['about']),
         ];
             // Return the portfolio data
             return $portfolio;
@@ -230,6 +275,75 @@ class Get extends GlobalMethods
             $project = $stmt_project->fetch(PDO::FETCH_ASSOC);
             if ($project) {
                 $payload['project'] = $project;
+            } else {
+                return array(
+                    "error" => "Error: Project not found"
+                );
+            }
+    
+            return $payload;
+        } catch (\PDOException $e) {
+            // Handle database errors
+            return array(
+                "error" => "Error: " . $e->getMessage()
+            );
+        }
+    }
+
+    public function get_skill($data) {
+        $id = $data['skillID'];
+        if ($id === null) {
+            // Handle case where $id is not provided
+            return array(
+                "error" => "Error: Project ID is required"
+            );
+        }
+    
+        try {
+            $payload = [];
+    
+            $sql_project = "SELECT * FROM skills WHERE skillID = :id";
+            $stmt_project = $this->pdo->prepare($sql_project);
+            $stmt_project->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt_project->execute();
+            
+            $project = $stmt_project->fetch(PDO::FETCH_ASSOC);
+            if ($project) {
+                $payload['skill'] = $project;
+            } else {
+                return array(
+                    "error" => "Error: Project not found"
+                );
+            }
+    
+            return $payload;
+        } catch (\PDOException $e) {
+            // Handle database errors
+            return array(
+                "error" => "Error: " . $e->getMessage()
+            );
+        }
+    }
+    public function get_contact($data) {
+        $id = $data['contID'];
+        if ($id === null) {
+            // Handle case where $id is not provided
+            return array(
+                "error" => "Error: Project ID is required"
+            );
+        }
+    
+        try {
+            $payload = [];
+    
+            $sql_project = "SELECT * FROM contact WHERE contID = :id";
+            $stmt_project = $this->pdo->prepare($sql_project);
+            $stmt_project->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt_project->execute();
+            
+            $project = $stmt_project->fetch(PDO::FETCH_ASSOC);
+            if ($project) {
+                $payload['contact'] = $project;
             } else {
                 return array(
                     "error" => "Error: Project not found"
