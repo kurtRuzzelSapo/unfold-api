@@ -177,9 +177,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'addaboutme':
                 // Return JSON-encoded data for adding employees
                 echo json_encode($post->add_aboutme($_POST));
-
-
-                 
                 break;
 
             case 'edit-about':
