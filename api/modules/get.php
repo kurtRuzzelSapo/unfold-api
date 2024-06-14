@@ -382,9 +382,33 @@ class Get extends GlobalMethods
     //     return $students;
     // }
 
-    public function get_all_students()
+//     public function get_all_students()
+// {
+//     $sql = "SELECT s.*, a.aboutText, a.aboutImg
+//             FROM students s
+//             LEFT JOIN (
+//                 SELECT studentID, 
+//                        MAX(aboutText) AS aboutText,
+//                        MAX(aboutImg) AS aboutImg
+//                 FROM aboutme
+//                 GROUP BY studentID
+//             ) a ON s.studentID = a.studentID
+//             WHERE s.is_admin = 0";
+//     $stmt = $this->pdo->prepare($sql);
+//     $stmt->execute();
+//     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+//     foreach ($students as &$student) {
+//         unset($student['password']);
+//     }
+
+//     return $students;
+// }
+
+
+public function get_all_students()
 {
-    $sql = "SELECT s.*, a.aboutText, a.aboutImg
+    $sql = "SELECT s.*, a.aboutText, a.aboutImg, GROUP_CONCAT(sk.skillTitle) as skills
             FROM students s
             LEFT JOIN (
                 SELECT studentID, 
@@ -393,13 +417,17 @@ class Get extends GlobalMethods
                 FROM aboutme
                 GROUP BY studentID
             ) a ON s.studentID = a.studentID
-            WHERE s.is_admin = 0";
+            LEFT JOIN skills sk ON s.studentID = sk.studentID
+            WHERE s.is_admin = 0
+            GROUP BY s.studentID";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute();
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($students as &$student) {
         unset($student['password']);
+        // Convert comma-separated skills into an array
+        $student['skills'] = $student['skills'] ? explode(',', $student['skills']) : [];
     }
 
     return $students;
