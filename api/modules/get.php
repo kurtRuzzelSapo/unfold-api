@@ -205,11 +205,11 @@ class Get extends GlobalMethods
             $stmt_accomplishments->execute();
             $portfolio['accomplishment'] = $stmt_accomplishments->fetchAll(PDO::FETCH_ASSOC);
 
-            $sql_contact = "SELECT * FROM contact WHERE studentID = :id";
-            $stmt_contact = $this->pdo->prepare($sql_contact);
-            $stmt_contact->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt_contact->execute();
-            $portfolio['contact'] = $stmt_contact->fetchAll(PDO::FETCH_ASSOC);
+            $sql_accomplishments = "SELECT * FROM contact WHERE studentID = :id";
+            $stmt_accomplishments = $this->pdo->prepare($sql_accomplishments);
+            $stmt_accomplishments->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt_accomplishments->execute();
+            $portfolio['contact'] = $stmt_accomplishments->fetchAll(PDO::FETCH_ASSOC);
 
             // Query for 'interest' data
             $sql_interest = "SELECT * FROM interest WHERE studentID = :id";
