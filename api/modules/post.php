@@ -548,7 +548,7 @@ public function delete_accomplishment($id)
         $aboutText = $data['aboutText'];
         $aboutId = $data['aboutID'];
         
-        $uploadDirectory = "../files/accomplishments/";
+        $uploadDirectory = "../files/about-me/";
     $filename = null;
 
     try {
@@ -564,11 +564,11 @@ public function delete_accomplishment($id)
         // If a new image was uploaded, include it in the update query
         if ($filename) {
             $sql = "UPDATE aboutme SET aboutText = ?, aboutImg = ? WHERE aboutID = ?";
-            $params = [$aboutText, "/files/accomplishments/$filename", $aboutId];
+            $params = [$aboutText, "/files/about-me/$filename", $aboutId];
         } else {
             // If no new image was uploaded, do not update the aboutImg field
             $sql = "UPDATE aboutme SET aboutText = ?, aboutImg = ? WHERE aboutID = ?";
-            $params = [$aboutText, "/files/accomplishments/$filename", $aboutId];
+            $params = [$aboutText, "/files/about-me/$filename", $aboutId];
         }
 
         $statement = $this->pdo->prepare($sql);
@@ -866,36 +866,74 @@ public function delete_service($id)
 
 
 
+    // public function login($data)
+    // {
+    //     try {
+    //         $sql = "SELECT * FROM students WHERE email = :email";
+    //         $statement = $this->pdo->prepare($sql);
+
+    //         // Bind email parameter
+    //         $statement->bindParam(':email', $data->email);
+
+    //         $statement->execute();
+    //         $user = $statement->fetch(PDO::FETCH_OBJ);
+    //         // $result = $this->executeQuery($sqlString);
+
+    //         if ($user) {
+    //             // Check if password matches
+    //             if (password_verify($data->password, $user->password)) {
+    //                 return $this->sendPayload($user, "success", "Login successful.", null);
+    //             } else {
+    //                 return $this->sendPayload(null, "error", "Incorrect password", null);
+    //             }
+    //         } else {
+    //             return $this->sendPayload(null, "error", "Incorrect email", null);
+    //         }
+    //     } catch (\PDOException $e) {
+    //         $errmsg = $e->getMessage();
+    //         $code = 400;
+    //         // Handle error
+    //         // You may want to log the error or return an appropriate response
+    //     }
+    // }
+
     public function login($data)
-    {
-        try {
-            $sql = "SELECT * FROM students WHERE email = :email";
+{
+    try {
+        // Check in students table
+        $sql = "SELECT * FROM students WHERE email = :email";
+        $statement = $this->pdo->prepare($sql);
+        $statement->bindParam(':email', $data->email);
+        $statement->execute();
+        $user = $statement->fetch(PDO::FETCH_OBJ);
+
+        // If not found in students, check in faculty table
+        if (!$user) {
+            $sql = "SELECT * FROM faculty WHERE email = :email";
             $statement = $this->pdo->prepare($sql);
-
-            // Bind email parameter
             $statement->bindParam(':email', $data->email);
-
             $statement->execute();
             $user = $statement->fetch(PDO::FETCH_OBJ);
-            // $result = $this->executeQuery($sqlString);
-
-            if ($user) {
-                // Check if password matches
-                if (password_verify($data->password, $user->password)) {
-                    return $this->sendPayload($user, "success", "Login successful.", null);
-                } else {
-                    return $this->sendPayload(null, "error", "Incorrect password", null);
-                }
-            } else {
-                return $this->sendPayload(null, "error", "Incorrect email", null);
-            }
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            $code = 400;
-            // Handle error
-            // You may want to log the error or return an appropriate response
         }
+
+        if ($user) {
+            // Check if password matches
+            if (password_verify($data->password, $user->password)) {
+                return $this->sendPayload($user, "success", "Login successful.", null);
+            } else {
+                return $this->sendPayload(null, "error", "Incorrect password", null);
+            }
+        } else {
+            return $this->sendPayload(null, "error", "Incorrect email", null);
+        }
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        $code = 400;
+        // Handle error
+        // You may want to log the error or return an appropriate response
+        return $this->sendPayload(null, "error", $errmsg, null);
     }
+}
 
 
 
