@@ -106,6 +106,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'get-all-students':
                 echo json_encode($get->get_all_students());
                 break;
+            case 'get-all-faculty':
+                echo json_encode($get->get_all_faculty());
+                break;
 
             default:
                 // Return a 403 response for unsupported requests
@@ -198,6 +201,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'edit-contact':
                 echo json_encode($post->edit_contact($_POST));
                 break;
+            case 'add-faculty':
+                echo json_encode($post->add_faculty($_POST));
+                break;
+            case 'add-testimony':
+                echo json_encode($post->add_testimony($_POST));
+                break;
             
                 
                 
@@ -268,6 +277,26 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 } else {
                     // If accomplishment ID is not provided, return error response
                     echo json_encode($post->sendPayload(null, "error", "Service ID not provided.", null));
+                }
+            break;
+            case 'add-views':
+                // Check if accomplishment ID is provided in the URL
+                if (isset($request[1])) {
+                    // Call the delete_accomplishment method in Post class
+                    echo json_encode($post->add_views($request[1]));
+                } else {
+                    // If accomplishment ID is not provided, return error response
+                    echo json_encode($post->sendPayload(null, "error", "Student ID not provided.", null));
+                }
+            break;
+            case 'approved':
+                // Check if accomplishment ID is provided in the URL
+                if (isset($request[1])) {
+                    // Call the delete_accomplishment method in Post class
+                    echo json_encode($post->add_approve($request[1]));
+                } else {
+                    // If accomplishment ID is not provided, return error response
+                    echo json_encode($post->sendPayload(null, "error", "Student ID not provided.", null));
                 }
             break;
 

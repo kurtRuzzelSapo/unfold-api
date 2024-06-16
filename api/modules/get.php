@@ -239,6 +239,12 @@ class Get extends GlobalMethods
             $stmt_skills->execute();
             $portfolio['skill'] = $stmt_skills->fetchAll(PDO::FETCH_ASSOC);
 
+            $sql_skills = "SELECT * FROM testimony WHERE studentID = :id";
+            $stmt_skills = $this->pdo->prepare($sql_skills);
+            $stmt_skills->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt_skills->execute();
+            $portfolio['testimony'] = $stmt_skills->fetchAll(PDO::FETCH_ASSOC);
+
              // Count projects, skills, and accomplishments
         $portfolio['counts'] = [
             'projects' => count($portfolio['project']),
@@ -246,6 +252,7 @@ class Get extends GlobalMethods
             'competitions' => count($portfolio['accomplishment']),
             'contacts' => count($portfolio['contact']),
             'about' => count($portfolio['about']),
+            'testimony' => count($portfolio['testimony']),
         ];
             // Return the portfolio data
             return $portfolio;
@@ -431,6 +438,16 @@ public function get_all_students()
     }
 
     return $students;
+}
+
+public function get_all_faculty(){
+    $sql = "SELECT * FROM faculty";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute();
+    $faculty = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return $faculty;
 }
 
 }
