@@ -64,6 +64,79 @@ class Post extends GlobalMethods
      * @return array|object
      *   The added employee data.
      */
+
+
+    //  public function add_faculty($data)
+    //  {
+    //      $facFirstname = $data['facFirstname'];
+    //      $facLastname = $data['facLastname'];
+    //      $facEmail = $data['facEmail'];
+    //      $facPassword = $data['facPassword'];
+    //      $facPosition = $data['facPosition'];
+    //      $facImg = 'http://localhost/unfold/unfold-api/files/profile/faculty_profile.png';
+     
+    //      try {
+    //          $sql = "INSERT INTO faculty (facFirstname, facLastname, facEmail, facPassword, facPosition, facImg) VALUES (?, ?, ?, ?, ?,?)";
+    //          $statement = $this->pdo->prepare($sql);
+    //          $statement->execute([$facFirstname, $facLastname, $facEmail, $facPassword, $facPosition, $facImg]);
+     
+    //          return $this->sendPayload(null, "success", "Successfully added records.", null);
+    //      } catch (\PDOException $e) {
+    //          $errmsg = $e->getMessage();
+    //          return $this->sendPayload(null, "error", $errmsg, null);
+    //      }
+    //  }
+
+    // public function add_faculty($data)
+    // {
+    //     $facFirstname = $data['facFirstname'];
+    //     $facLastname = $data['facLastname'];
+    //     $facEmail = $data['facEmail'];
+    //     $facPassword = password_hash($data['facPassword'], PASSWORD_BCRYPT); // Hash the password
+    //     $facPosition = $data['facPosition'];
+    //     $facImg = '/files/profile/faculty_profile.png';
+    //     $isFaculty = 1; // Set is_faculty to 1
+    
+    //     try {
+    //         $sql = "INSERT INTO faculty (facFirstname, facLastname, facEmail, facPassword, facPosition, facImg, is_faculty) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    //         $statement = $this->pdo->prepare($sql);
+    //         $statement->execute([$facFirstname, $facLastname, $facEmail, $facPassword, $facPosition, $facImg, $isFaculty]);
+    
+    //         return $this->sendPayload(null, "success", "Successfully added records.", null);
+    //     } catch (\PDOException $e) {
+    //         $errmsg = $e->getMessage();
+    //         return $this->sendPayload(null, "error", $errmsg, null);
+    //     }
+    // }
+
+    public function add_faculty($data)
+{
+    $facFirstname = $data['facFirstname'];
+    $facLastname = $data['facLastname'];
+    $facEmail = $data['facEmail'];
+    $facPassword = password_hash($data['facPassword'], PASSWORD_BCRYPT); // Hash the password
+    $facPosition = $data['facPosition'];
+    $facImg = '/files/profile/faculty_profile.png'; // Default image for faculty members
+    $isFaculty = 1; // Set is_faculty to 1
+
+    try {
+        $sql = "INSERT INTO faculty (facFirstname, facLastname, facEmail, facPassword, facPosition, facImg, is_faculty) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute([$facFirstname, $facLastname, $facEmail, $facPassword, $facPosition, $facImg, $isFaculty]);
+
+        return $this->sendPayload(null, "success", "Successfully added records.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        return $this->sendPayload(null, "error", $errmsg, null);
+    }
+}
+
+    
+
+
+
+
+
     public function add_students($data)
     {
         $password = $data->password;
@@ -210,27 +283,7 @@ class Post extends GlobalMethods
 
     }
     
-    // try {
-    //     $sql = "INSERT INTO skills (skillTitle,skillDesc, studentID) VALUES (?,?,?)";
-
-    //     $statement = $this->pdo->prepare($sql);
-
-    //     $statement->execute(
-    //         [
-    //             $data->skillTitle,
-    //             $data->skillDesc,
-    //             $data->studentID,
-    //         ]
-    //     );
-
-    //     return $this->sendPayload(null, "success", "Successfully add records.", null);
-    // } catch (\PDOException $e) {
-    //     $errmsg = $e->getMessage();
-    //     $code = 400;
-    // }
-
-
-    // return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+   
     
     public function edit_skill($data)
 {
@@ -281,11 +334,6 @@ public function edit_contact($data)
 
 
 
-
-
-
-    // Add this method to post.php
-
 public function delete_skill($id)
 {
     try {
@@ -324,94 +372,11 @@ public function delete_contact($id)
 
 
 
-    public function add_interest($data)
-    {
-        $skillTitle = $data['skillTitle'];
-        $skillDesc = $data['skillDesc'];
-        $studentId =  $data['studentID'];
-            try{
-
-            
-
-            $sql = "INSERT INTO skills (skillTitle, skillDesc, studentID) VALUES (?, ?, ?)";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute([$skillTitle, $skillDesc, $studentId]);
-
-            return $this->sendPayload(null, "success", "Successfully added records.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            return $this->sendPayload(null, "error", $errmsg, null);
-    }
-}
-
-    public function edit_interest($data, $id)
-    {
-
-        try {
-            $sql = "UPDATE interest SET title = ?, description = ? WHERE studentID = ?";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute([
-                $data->title,
-                $data->description,
-                $id
-            ]);
-
-            return $this->sendPayload(null, "success", "Successfully updated.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            $code = 400;
-        }
-    }
-
-    public function delete_interest($id)
-    {
-        try {
-            $sql = " DELETE FROM interest WHERE studentID = ?";
+  
 
 
-            $statement = $this->pdo->prepare($sql);
+    
 
-            $statement->execute(
-                [
-                    $id
-                ]
-            );
-
-
-            return $this->sendPayload(null, "success", "Successfully deleted.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            $code = 400;
-        }
-
-
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
-    }
-
-
-    // public function add_accomplishments($data)
-    // {
-    //     try {
-    //         $sql = "INSERT INTO accomplishments ( accomTitle, accomDesc, accomImg, studentID) VALUES (?,?,?,?)";
-    //         $statement = $this->pdo->prepare($sql);
-    //         $statement->execute(
-    //             [
-    //                 $data->accomTitle,
-    //                 $data->accomDesc,
-    //                 $data->accomImg,
-    //                 $data->studentID
-    //             ]
-    //         );
-
-    //         return $this->sendPayload(null, "success", "Successfully add records.", null);
-    //     } catch (\PDOException $e) {
-    //         $errmsg = $e->getMessage();
-    //         $code = 400;
-    //     }
-
-
-    //     return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
-    // }
 
     public function add_accomplishments($data)
     {
@@ -487,9 +452,7 @@ public function delete_contact($id)
         }
     }
 
-    // Add this code to post.php
-
-// Add this method to post.php
+ 
 
 public function delete_accomplishment($id)
 {
@@ -709,132 +672,131 @@ public function delete_project($id){
     return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
 }
 
-
-
-
-
-//     public function edit_project($data)
+// public function add_testimony($data)
 // {
-//     $projectId = $data['projectID']; // Assuming you pass the project ID for editing
-//     $projectTitle = $data['projectTitle'];
-//     $projectDesc = $data['projectDesc'];
+//     $testDesc = $data['testDesc'];
+//     $studentId = $data['studentID'];
+//     $testFirstname = $data['testFirstname'];
+//     $testLastname = $data['testLastname'];
+//     $testPosition = $data['testPosition'];
     
-
 //     $uploadDirectory = "../files/projects/";
+
 //     try {
 //         // Check if a file was uploaded
-//         if (isset($_FILES['projectImg']) && $_FILES['projectImg']['error'] === UPLOAD_ERR_OK) {
+//         if (isset($_FILES['testImg']) && $_FILES['testImg']['error'] === UPLOAD_ERR_OK) {
 //             // Call the uploadImage function to handle the file upload
-//             $filename = $this->uploadImage($_FILES['projectImg'], $uploadDirectory);
+//             $filename = $this->uploadImage($_FILES['testImg'], $uploadDirectory);
 //             if (!$filename) {
 //                 return $this->sendPayload(null, "error", "Failed to upload image.", null);
 //             }
 //         }
 
-//         // Check if the project ID is provided for editing
-//         if (!empty($projectId)) {
-//             // If project ID is provided, update the existing project
-//             $sql = "UPDATE project SET projectTitle=?, projectDesc=?, projectImg=? WHERE projectId=?";
-//             $statement = $this->pdo->prepare($sql);
-//             $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename", $projectId]);
-//         } else {
-//             // If project ID is not provided, it's a new project, so insert it
-//             $sql = "INSERT INTO project (projectTitle, projectDesc, projectImg) VALUES (?, ?, ?)";
-//             $statement = $this->pdo->prepare($sql);
-//             $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename"]);
+//         $sql = "INSERT INTO testimony (testDesc, studentID, testFirstname, testLastname, testPosition, testImg) VALUES (?, ?, ?, ?, ?, ?)";
+//         $statement = $this->pdo->prepare($sql);
+//         $statement->execute([$testDesc, $studentId, $testFirstname, $testLastname, $testPosition, "/files/projects/$filename"]);
+
+//         return $this->sendPayload(null, "success", "Successfully added records.", null);
+//     } catch (\PDOException $e) {
+//         $errmsg = $e->getMessage();
+//         return $this->sendPayload(null, "error", $errmsg, null);
+//     }
+// }
+
+// public function add_testimony($data)
+// {
+//     $testDesc = $data['testDesc'];
+//     $studentId = $data['studentID'];
+//     $testFirstname = $data['testFirstname'];
+//     $testLastname = $data['testLastname'];
+//     $testPosition = $data['testPosition'];
+    
+//     $uploadDirectory = "../files/projects/";
+//     $filename = null; // Initialize the $filename variable
+
+//     try {
+//         // Check if a file was uploaded
+//         if (isset($_FILES['testImg']) && $_FILES['testImg']['error'] === UPLOAD_ERR_OK) {
+//             // Call the uploadImage function to handle the file upload
+//             $filename = $this->uploadImage($_FILES['testImg'], $uploadDirectory);
+//             if (!$filename) {
+//                 return $this->sendPayload(null, "error", "Failed to upload image.", null);
+//             }
 //         }
 
-//         return $this->sendPayload(null, "success", "Successfully updated/added records.", null);
-//     } catch (\PDOException $e) {
-//         $errmsg = $e->getMessage();
-//         return $this->sendPayload(null, "error", $errmsg, null);
-//     }
-// }
+//         // If no file is uploaded, set $filename to a default value (e.g., empty string or null)
+//         $filePath = $filename ? "/files/projects/$filename" : null;
 
-
-
-    // public function edit_project($data, $id)
-    // {
-
-    //     try {
-    //         $sql = "UPDATE project SET projectTitle = ?,projectDesc = ?,projectImg = ?, WHERE studentID = ?";
-    //         $statement = $this->pdo->prepare($sql);
-    //         $statement->execute([
-    //             $data->projectTitle,
-    //             $data->projectDesc,
-    //             $data->projectImg,
-    //             $id
-    //         ]);
-
-    //         return $this->sendPayload(null, "success", "Successfully updated.", null);
-    //     } catch (\PDOException $e) {
-    //         $errmsg = $e->getMessage();
-    //         $code = 400;
-    //     }
-    // }
-
-
-    // Add this code to post.php
-
-// public function delete_project($id)
-// {
-//     try {
-//         $sql = "DELETE FROM project WHERE projectID = ?";
+//         $sql = "INSERT INTO testimony (testDesc, studentID, testFirstname, testLastname, testPosition, testImg) VALUES (?, ?, ?, ?, ?, ?)";
 //         $statement = $this->pdo->prepare($sql);
-//         $statement->execute([$id]);
+//         $statement->execute([$testDesc, $studentId, $testFirstname, $testLastname, $testPosition, $filePath]);
 
-//         return $this->sendPayload(null, "success", "Successfully deleted project.", null);
+//         return $this->sendPayload(null, "success", "Successfully added records.", null);
 //     } catch (\PDOException $e) {
 //         $errmsg = $e->getMessage();
 //         return $this->sendPayload(null, "error", $errmsg, null);
 //     }
 // }
 
-
-    
-    public function add_service($data)
-    {
-        $serviceTitle = $data['serviceTitle'];
-        $serviceDesc = $data['serviceDesc'];
-        $studentId =  $data['studentID'];
-            try{
-
-            
-
-            $sql = "INSERT INTO service (serviceTitle, serviceDesc, studentID) VALUES (?, ?, ?)";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute([$serviceTitle, $serviceDesc, $studentId]);
-
-            return $this->sendPayload(null, "success", "Successfully added records.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            return $this->sendPayload(null, "error", $errmsg, null);
-    }
-
-}
-
-public function edit_service($data)
+public function add_testimony($data)
 {
-    $serviceID = $data['serviceID']; // Assuming you pass the service ID for editing
-    $serviceTitle = $data['serviceTitle'];
-    $serviceDesc = $data['serviceDesc'];
-    $studentId =  $data['studentID'];
+    $testDesc = $data['testDesc'];
+    $studentId = $data['studentID'];
+    $testFirstname = $data['testFirstname'];
+    $testLastname = $data['testLastname'];
+    $testPosition = $data['testPosition'];
+    
+    $uploadDirectory = "../files/projects/";
+    $defaultImagePath = '/files/profile/faculty_profile.png'; // Default image path
 
     try {
-        // Check if the service ID is provided for editing
-        if (!empty($serviceID)) {
-            // If service ID is provided, update the existing service
-            $sql = "UPDATE service SET serviceTitle=?, serviceDesc=? WHERE serviceID=?";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute([$serviceTitle, $serviceDesc, $serviceID]);
-        } else {
-            // If service ID is not provided, it's a new service, so insert it
-            $sql = "INSERT INTO service (serviceTitle, serviceDesc, studentID) VALUES (?, ?, ?)";
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute([$serviceTitle, $serviceDesc, $studentId]);
+        $filename = null;
+
+        // Check if a file was uploaded
+        if (isset($_FILES['testImg']) && $_FILES['testImg']['error'] === UPLOAD_ERR_OK) {
+            // Call the uploadImage function to handle the file upload
+            $filename = $this->uploadImage($_FILES['testImg'], $uploadDirectory);
+            if (!$filename) {
+                return $this->sendPayload(null, "error", "Failed to upload image.", null);
+            }
         }
 
-        return $this->sendPayload(null, "success", "Successfully updated/added records.", null);
+        // Use the uploaded file path or default image path
+        $filePath = $filename ? "/files/projects/$filename" : $defaultImagePath;
+
+        $sql = "INSERT INTO testimony (testDesc, studentID, testFirstname, testLastname, testPosition, testImg) VALUES (?, ?, ?, ?, ?, ?)";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute([$testDesc, $studentId, $testFirstname, $testLastname, $testPosition, $filePath]);
+
+        return $this->sendPayload(null, "success", "Successfully added records.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        return $this->sendPayload(null, "error", $errmsg, null);
+    }
+}
+
+
+public function add_views($id)
+{
+    try {
+        $sql = "UPDATE students SET portfolioView = portfolioView + 1 WHERE studentID = ?";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute([$id]);
+
+        return $this->sendPayload(null, "success", "Successfully incremented portfolio view count.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        return $this->sendPayload(null, "error", $errmsg, null);
+    }
+}
+public function add_approve($id)
+{
+    try {
+        $sql = "UPDATE students SET approved = approved + 1 WHERE studentID = ?";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute([$id]);
+
+        return $this->sendPayload(null, "success", "Successfully incremented portfolio view count.", null);
     } catch (\PDOException $e) {
         $errmsg = $e->getMessage();
         return $this->sendPayload(null, "error", $errmsg, null);
@@ -843,82 +805,83 @@ public function edit_service($data)
 
 
 
-    // Add this method to post.php
 
-public function delete_service($id)
+
+
+
+
+
+
+
+
+
+//     public function login($data)
+// {
+//     try {
+//         // Check in students table
+//         $sql = "SELECT * FROM students WHERE email = :email";
+//         $statement = $this->pdo->prepare($sql);
+//         $statement->bindParam(':email', $data->email);
+//         $statement->execute();
+//         $user = $statement->fetch(PDO::FETCH_OBJ);
+
+//         // If not found in students, check in faculty table
+//         if (!$user) {
+//             $sql = "SELECT * FROM faculty WHERE facEmail = :facEmail";
+//             $statement = $this->pdo->prepare($sql);
+//             $statement->bindParam(':facEmail', $data->facEmail);
+//             $statement->execute();
+//             $user = $statement->fetch(PDO::FETCH_OBJ);
+//         }
+
+//         if ($user) {
+//             // Check if password matches
+//             if (password_verify($data->facPassword, $user->facPassword)) {
+//                 return $this->sendPayload($user, "success", "Login successful.", null);
+//             } else {
+//                 return $this->sendPayload(null, "error", "Incorrect password", null);
+//             }
+//         } else {
+//             return $this->sendPayload(null, "error", "Incorrect email", null);
+//         }
+//     } catch (\PDOException $e) {
+//         $errmsg = $e->getMessage();
+//         $code = 400;
+//         // Handle error
+//         // You may want to log the error or return an appropriate response
+//         return $this->sendPayload(null, "error", $errmsg, null);
+//     }
+// }
+
+
+public function login($data)
 {
     try {
-        $sql = "DELETE FROM service WHERE serviceID = ?";
-
-        $statement = $this->pdo->prepare($sql);
-
-        $statement->execute([$id]);
-
-        return $this->sendPayload(null, "success", "Successfully deleted.", null);
-    } catch (\PDOException $e) {
-        $errmsg = $e->getMessage();
-        // You can choose to handle errors differently here
-    }
-
-    return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
-}
-
-
-
-
-    // public function login($data)
-    // {
-    //     try {
-    //         $sql = "SELECT * FROM students WHERE email = :email";
-    //         $statement = $this->pdo->prepare($sql);
-
-    //         // Bind email parameter
-    //         $statement->bindParam(':email', $data->email);
-
-    //         $statement->execute();
-    //         $user = $statement->fetch(PDO::FETCH_OBJ);
-    //         // $result = $this->executeQuery($sqlString);
-
-    //         if ($user) {
-    //             // Check if password matches
-    //             if (password_verify($data->password, $user->password)) {
-    //                 return $this->sendPayload($user, "success", "Login successful.", null);
-    //             } else {
-    //                 return $this->sendPayload(null, "error", "Incorrect password", null);
-    //             }
-    //         } else {
-    //             return $this->sendPayload(null, "error", "Incorrect email", null);
-    //         }
-    //     } catch (\PDOException $e) {
-    //         $errmsg = $e->getMessage();
-    //         $code = 400;
-    //         // Handle error
-    //         // You may want to log the error or return an appropriate response
-    //     }
-    // }
-
-    public function login($data)
-{
-    try {
-        // Check in students table
         $sql = "SELECT * FROM students WHERE email = :email";
         $statement = $this->pdo->prepare($sql);
         $statement->bindParam(':email', $data->email);
         $statement->execute();
         $user = $statement->fetch(PDO::FETCH_OBJ);
 
-        // If not found in students, check in faculty table
-        if (!$user) {
-            $sql = "SELECT * FROM faculty WHERE email = :email";
+        // Check if user is found in the students table
+        if ($user) {
+            $passwordHash = $user->password; // Assuming the password field in students table is named 'password'
+        } else {
+            // If not found, check in the faculty table
+            $sql = "SELECT * FROM faculty WHERE facEmail = :email";
             $statement = $this->pdo->prepare($sql);
             $statement->bindParam(':email', $data->email);
             $statement->execute();
             $user = $statement->fetch(PDO::FETCH_OBJ);
+
+            if ($user) {
+                $passwordHash = $user->facPassword; // Assuming the password field in faculty table is named 'facPassword'
+            }
         }
 
         if ($user) {
             // Check if password matches
-            if (password_verify($data->password, $user->password)) {
+            if (password_verify($data->password, $passwordHash)) { // Use $data->password to verify against the hashed password
                 return $this->sendPayload($user, "success", "Login successful.", null);
             } else {
                 return $this->sendPayload(null, "error", "Incorrect password", null);
@@ -928,38 +891,12 @@ public function delete_service($id)
         }
     } catch (\PDOException $e) {
         $errmsg = $e->getMessage();
-        $code = 400;
-        // Handle error
-        // You may want to log the error or return an appropriate response
         return $this->sendPayload(null, "error", $errmsg, null);
     }
 }
 
 
 
-    // public function login($data)
-    // {
 
 
-    //     try {
-    //         $sql = "SELECT * FROM students WHERE email = :email";
-    //         $statement = $this->pdo->prepare($sql);
-
-    //         $statement->execute(
-    //             [
-    //                 $data
-    //             ]
-    //         );
-    //         $enteredPassword = $data->password;
-    //         $user = $statement->fetch(PDO::FETCH_OBJ);
-    //         $hashedpassword = $user->password;
-
-    //         if (password_verify($enteredPassword, $hashedpassword)) {
-    //             return $this->sendPayload(null, "success", "Your data exist.", null);
-    //         }
-    //     } catch (\PDOException $e) {
-    //         $errmsg = $e->getMessage();
-    //         $code = 400;
-    //     }
-    // }
 }
