@@ -207,6 +207,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'add-testimony':
                 echo json_encode($post->add_testimony($_POST));
                 break;
+            case 'edit-profile':
+                echo json_encode($post->edit_profile($_POST));
+                break;
             
                 
                 
