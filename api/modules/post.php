@@ -512,28 +512,17 @@ public function delete_accomplishment($id)
         $aboutText = $data['aboutText'];
         $aboutId = $data['aboutID'];
         
-        $uploadDirectory = "../files/about-me/";
-    $filename = null;
+    
 
     try {
-        // Check if a file was uploaded
-        if (isset($_FILES['aboutImg']) && $_FILES['aboutImg']['error'] === UPLOAD_ERR_OK) {
-            // Call the uploadImage function to handle the file upload
-            $filename = $this->uploadImage($_FILES['aboutImg'], $uploadDirectory);
-            if (!$filename) {
-                return $this->sendPayload(null, "error", "Failed to upload image.", null);
-            }
-        }
+       
+      
 
         // If a new image was uploaded, include it in the update query
-        if ($filename) {
-            $sql = "UPDATE aboutme SET aboutText = ?, aboutImg = ? WHERE aboutID = ?";
-            $params = [$aboutText, "/files/about-me/$filename", $aboutId];
-        } else {
-            // If no new image was uploaded, do not update the aboutImg field
-            $sql = "UPDATE aboutme SET aboutText = ?, aboutImg = ? WHERE aboutID = ?";
-            $params = [$aboutText, "/files/about-me/$filename", $aboutId];
-        }
+        
+            $sql = "UPDATE aboutme SET aboutText = ? WHERE aboutID = ?";
+            $params = [$aboutText, $aboutId];
+        
 
         $statement = $this->pdo->prepare($sql);
         $statement->execute($params);
@@ -546,6 +535,40 @@ public function delete_accomplishment($id)
 
     
     }
+    public function edit_profileImg($data)
+    {
+        // Assuming you pass the about ID for editing
+        $aboutId = $data['aboutID'];
+        
+        $uploadDirectory = "../files/about-me/";
+        $filename = null;
+    
+        try {
+            // Check if a file was uploaded
+            if (isset($_FILES['aboutImg']) && $_FILES['aboutImg']['error'] === UPLOAD_ERR_OK) {
+                // Call the uploadImage function to handle the file upload
+                $filename = $this->uploadImage($_FILES['aboutImg'], $uploadDirectory);
+                if (!$filename) {
+                    return $this->sendPayload(null, "error", "Failed to upload image.", null);
+                }
+            } else {
+                return $this->sendPayload(null, "error", "No image uploaded.", null);
+            }
+    
+            // Update only the aboutImg field
+            $sql = "UPDATE aboutme SET aboutImg = ? WHERE aboutID = ?";
+            $params = ["/files/about-me/$filename", $aboutId];
+    
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute($params);
+    
+            return $this->sendPayload(null, "success", "Successfully updated image.", null);
+        } catch (\PDOException $e) {
+            $errmsg = $e->getMessage();
+            return $this->sendPayload(null, "error", $errmsg, null);
+        }
+    }
+    
     
    
     public function delete_aboutme($id)
