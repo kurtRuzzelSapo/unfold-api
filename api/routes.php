@@ -210,6 +210,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'edit-profile':
                 echo json_encode($post->edit_profile($_POST));
                 break;
+            case 'edit-profileImg':
+                echo json_encode($post->edit_profileImg($_POST));
+                break;
             
                 
                 
