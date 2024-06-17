@@ -143,7 +143,7 @@ class Post extends GlobalMethods
         $hashedpassword = password_hash($password, PASSWORD_DEFAULT);
         try {
 
-            $sql = "INSERT INTO students (firstName, lastName, email, password, address, contacts, course, sex, birthdate, school) VALUES (?,?,?,?,?,?,?,?,?,?)";
+            $sql = "INSERT INTO students (firstName, lastName, email, password, address, contacts, course, sex, birthdate, school, position) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 
             $statement = $this->pdo->prepare($sql);
 
@@ -159,6 +159,7 @@ class Post extends GlobalMethods
                     $data->sex,
                     $data->birthdate,
                     $data->school,
+                    $data->position,
                 ]
             );
 
@@ -852,6 +853,38 @@ public function add_approve($id)
 //         return $this->sendPayload(null, "error", $errmsg, null);
 //     }
 // }
+
+public function edit_profile($data)
+{
+    $studentID = $data['studentID'] ?? null;
+    $firstName = $data['firstName'];
+    $lastName = $data['lastName'];
+    $position = $data['position'];
+    $birthdate = $data['birthdate'];
+    $address = $data['address'];
+    $contacts = $data['contacts'];
+
+    try {
+        // Check if the student ID is provided for editing
+        if (!empty($studentID)) {
+            // If student ID is provided, update the existing student profile
+            $sql = "UPDATE students SET firstName=?, lastName=?, position=?, birthdate=?, address=?, contacts=? WHERE studentID=?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$firstName, $lastName, $position, $birthdate, $address, $contacts, $studentID]);
+        } else {
+            // If student ID is not provided, it's a new student, so insert it
+            $sql = "INSERT INTO students (firstName, lastName, position, birthdate, address, contacts) VALUES (?, ?, ?, ?, ?, ?)";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$firstName, $lastName, $position, $birthdate, $address, $contacts]);
+        }
+
+        return $this->sendPayload(null, "success", "Successfully updated/added records.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        return $this->sendPayload(null, "error", $errmsg, null);
+    }
+}
+
 
 
 public function login($data)
