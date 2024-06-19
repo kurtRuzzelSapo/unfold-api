@@ -216,6 +216,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'edit-credentials':
                 echo json_encode($post->edit_credentials($_POST));
                 break;
+            case 'edit-facPassword':
+                echo json_encode($post->edit_facPassword($_POST));
+                break;
             
                 
                 
