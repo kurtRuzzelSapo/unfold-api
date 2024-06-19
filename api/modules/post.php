@@ -995,6 +995,49 @@ public function edit_credentials($data)
     }
 }
 
+public function edit_facPassword($data)
+{
+    // Retrieve data and handle null defaults
+    $facID = $data['facID'] ?? null;
+    $oldPassword = $data['oldPassword'] ?? null;
+    $newPassword = $data['newPassword'] ?? null;
+
+    // Check for missing required fields
+    if (empty($facID) || empty($oldPassword) || empty($newPassword)) {
+        return $this->sendPayload(null, "error", "Missing required fields.", null);
+    }
+
+    try {
+        // Fetch the current password from the database
+        $sql = "SELECT facPassword FROM faculty WHERE facID = ?";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute([$facID]);
+        $storedPassword = $statement->fetchColumn();
+
+        // Check if the fetched password matches the old password
+        if ($storedPassword && password_verify($oldPassword, $storedPassword)) {
+            // Hash the new password
+            $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+            // Update the password in the database
+            $updateSql = "UPDATE faculty SET facPassword = ? WHERE facID = ?";
+            $updateStatement = $this->pdo->prepare($updateSql);
+            $updateStatement->execute([$hashedNewPassword, $facID]);
+
+            return $this->sendPayload(null, "success", "Password updated successfully.", null);
+        } else {
+            // Incorrect old password
+            return $this->sendPayload($oldPassword, "error", "Old password does not match.", null);
+        }
+    } catch (\PDOException $e) {
+        // Handle any PDO exceptions
+        $errmsg = $e->getMessage();
+        return $this->sendPayload(null, "error", $errmsg, null);
+    }
+}
+
+
+
 
 
 
