@@ -133,46 +133,98 @@ class Post extends GlobalMethods
 
     
 
+public function add_students($data)
+{
+    $password = $data->password;
+    $hashedpassword = password_hash($password, PASSWORD_DEFAULT);
+    $defaultImagePath = '/files/about-me/rio.jpg';
+    
+    try {
+        // Start transaction
+        $this->pdo->beginTransaction();
 
+        // Insert student record
+        $sql = "INSERT INTO students (firstName, lastName, email, password, address, contacts, course, sex, birthdate, school, position) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute([
+            $data->firstName,
+            $data->lastName,
+            $data->email,
+            $hashedpassword,
+            $data->address,
+            $data->contacts,
+            $data->course,
+            $data->sex,
+            $data->birthdate,
+            $data->school,
+            $data->position,
+        ]);
 
+        // Get the last inserted student ID
+        $studentId = $this->pdo->lastInsertId();
 
+        // Insert default image path into aboutme table
+        $sqlAboutMe = "INSERT INTO aboutme (studentID,aboutImg ) VALUES (?,?)";
+        $statementAboutMe = $this->pdo->prepare($sqlAboutMe);
+        $statementAboutMe->execute([
+            $studentId,
+            $defaultImagePath,
+        ]);
 
-    public function add_students($data)
-    {
-        $password = $data->password;
-        $hashedpassword = password_hash($password, PASSWORD_DEFAULT);
-        try {
+        // Commit transaction
+        $this->pdo->commit();
 
-            $sql = "INSERT INTO students (firstName, lastName, email, password, address, contacts, course, sex, birthdate, school, position) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-
-            $statement = $this->pdo->prepare($sql);
-
-            $statement->execute(
-                [
-                    $data->firstName,
-                    $data->lastName,
-                    $data->email,
-                    $hashedpassword,
-                    $data->address,
-                    $data->contacts,
-                    $data->course,
-                    $data->sex,
-                    $data->birthdate,
-                    $data->school,
-                    $data->position,
-                ]
-            );
-
-
-            return $this->sendPayload(null, "success", "Successfully add records.", null);
-        } catch (\PDOException $e) {
-            $errmsg = $e->getMessage();
-            $code = 400;
-        }
-
-
-        return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+        return $this->sendPayload(null, "success", "Successfully added records.", null);
+    } catch (\PDOException $e) {
+        // Rollback transaction in case of error
+        $this->pdo->rollBack();
+        $errmsg = $e->getMessage();
+        $code = 400;
     }
+
+    return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+}
+
+
+
+
+    // public function add_students($data)
+    // {
+    //     $password = $data->password;
+    //     $hashedpassword = password_hash($password, PASSWORD_DEFAULT);
+    //     try {
+
+    //         $sql = "INSERT INTO students (firstName, lastName, email, password, address, contacts, course, sex, birthdate, school, position) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+
+    //         $statement = $this->pdo->prepare($sql);
+
+    //         $statement->execute(
+    //             [
+    //                 $data->firstName,
+    //                 $data->lastName,
+    //                 $data->email,
+    //                 $hashedpassword,
+    //                 $data->address,
+    //                 $data->contacts,
+    //                 $data->course,
+    //                 $data->sex,
+    //                 $data->birthdate,
+    //                 $data->school,
+    //                 $data->position,
+    //             ]
+    //         );
+
+
+    //         return $this->sendPayload(null, "success", "Successfully add records.", null);
+    //     } catch (\PDOException $e) {
+    //         $errmsg = $e->getMessage();
+    //         $code = 400;
+    //     }
+
+
+    //     return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+    // }
+
     public function edit_students($data, $id)
     {
         
@@ -907,6 +959,42 @@ public function edit_profile($data)
         return $this->sendPayload(null, "error", $errmsg, null);
     }
 }
+
+
+public function edit_credentials($data)
+{
+    $studentID = $data['studentID'] ?? null;
+    $oldPassword = $data['oldPassword'] ?? null;
+    $newPassword = $data['newPassword'] ?? null;
+
+    if (empty($studentID) || empty($oldPassword) || empty($newPassword)) {
+        return $this->sendPayload(null, "error", "Missing required fields.", null);
+    }
+
+    try {
+        // Fetch the current password from the database
+        $sql = "SELECT password FROM students WHERE studentID = ?";
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute([$studentID]);
+        $storedPassword = $statement->fetchColumn();
+
+        if ($storedPassword && password_verify($oldPassword, $storedPassword)) {
+            // If the old password matches, update the password
+            $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            $updateSql = "UPDATE students SET password = ? WHERE studentID = ?";
+            $updateStatement = $this->pdo->prepare($updateSql);
+            $updateStatement->execute([$hashedNewPassword, $studentID]);
+
+            return $this->sendPayload(null, "success", "Password updated successfully.", null);
+        } else {
+            return $this->sendPayload(null, "error", "Old password does not match.", null);
+        }
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        return $this->sendPayload(null, "error", $errmsg, null);
+    }
+}
+
 
 
 
