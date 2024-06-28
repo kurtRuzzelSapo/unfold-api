@@ -413,9 +413,41 @@ class Get extends GlobalMethods
 // }
 
 
+// public function get_all_students()
+// {
+//     $sql = "SELECT s.*, a.aboutText, a.aboutImg, GROUP_CONCAT(sk.skillTitle) as skills
+//             FROM students s
+//             LEFT JOIN (
+//                 SELECT studentID, 
+//                        MAX(aboutText) AS aboutText,
+//                        MAX(aboutImg) AS aboutImg
+//                 FROM aboutme
+//                 GROUP BY studentID
+//             ) a ON s.studentID = a.studentID
+//             LEFT JOIN skills sk ON s.studentID = sk.studentID
+//             WHERE s.is_admin = 0
+//             GROUP BY s.studentID";
+//     $stmt = $this->pdo->prepare($sql);
+//     $stmt->execute();
+//     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+//     foreach ($students as &$student) {
+//         unset($student['password']);
+//         // Convert comma-separated skills into an array
+//         $student['skills'] = $student['skills'] ? explode(',', $student['skills']) : [];
+//     }
+
+//     return $students;
+// }
+
+
 public function get_all_students()
 {
-    $sql = "SELECT s.*, a.aboutText, a.aboutImg, GROUP_CONCAT(sk.skillTitle) as skills
+    $sql = "SELECT s.*, 
+                   a.aboutText, 
+                   a.aboutImg, 
+                   GROUP_CONCAT(DISTINCT sk.skillTitle) as skills, 
+                   GROUP_CONCAT(DISTINCT p.projectTitle) as projects
             FROM students s
             LEFT JOIN (
                 SELECT studentID, 
@@ -425,6 +457,7 @@ public function get_all_students()
                 GROUP BY studentID
             ) a ON s.studentID = a.studentID
             LEFT JOIN skills sk ON s.studentID = sk.studentID
+            LEFT JOIN project p ON s.studentID = p.studentID
             WHERE s.is_admin = 0
             GROUP BY s.studentID";
     $stmt = $this->pdo->prepare($sql);
@@ -435,10 +468,81 @@ public function get_all_students()
         unset($student['password']);
         // Convert comma-separated skills into an array
         $student['skills'] = $student['skills'] ? explode(',', $student['skills']) : [];
+        // Convert comma-separated projects into an array
+        $student['projects'] = $student['projects'] ? explode(',', $student['projects']) : [];
     }
 
     return $students;
 }
+
+public function get_all_projects()
+{
+    $sql = "SELECT p.projectID, 
+                   p.projectTitle, 
+                   p.projectDesc,
+                   p.projectImg, 
+                   p.projectDate, 
+                   p.studentID,
+                   CONCAT(st.firstName, ' ', st.lastName) as studentName,
+                   st.position as studentPosition,
+                   st.course as studentCourse,
+                   a.aboutImg
+            FROM project p
+            LEFT JOIN students st ON p.studentID = st.studentID
+            LEFT JOIN aboutme a ON st.studentID = a.studentID
+            WHERE st.is_admin = 0";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute();
+    $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return $this->shuffle_projects($projects);
+}
+
+private function shuffle_projects($projects)
+{
+    // Group projects by studentID
+    $grouped_projects = [];
+    foreach ($projects as $project) {
+        $grouped_projects[$project['studentID']][] = $project;
+    }
+
+    // Flatten the grouped projects array while ensuring no two projects of the same student are adjacent
+    $shuffled_projects = [];
+    $keys = array_keys($grouped_projects);
+    shuffle($keys);
+
+    while (!empty($keys)) {
+        foreach ($keys as $key) {
+            if (!empty($grouped_projects[$key])) {
+                $shuffled_projects[] = array_shift($grouped_projects[$key]);
+            }
+        }
+
+        // Remove empty keys
+        $keys = array_filter($keys, function($key) use ($grouped_projects) {
+            return !empty($grouped_projects[$key]);
+        });
+
+        // Shuffle keys to maintain randomness in subsequent iterations
+        shuffle($keys);
+    }
+
+    return $shuffled_projects;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 public function get_all_faculty(){
     $sql = "SELECT * FROM faculty";
