@@ -109,6 +109,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'get-all-faculty':
                 echo json_encode($get->get_all_faculty());
                 break;
+            case 'get-all-project':
+                echo json_encode($get->get_all_projects());
+                break;
 
             default:
                 // Return a 403 response for unsupported requests
