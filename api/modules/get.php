@@ -482,6 +482,7 @@ public function get_all_projects()
                    p.projectDesc,
                    p.projectImg, 
                    p.projectDate, 
+                   p.projectLink,
                    p.studentID,
                    CONCAT(st.firstName, ' ', st.lastName) as studentName,
                    st.position as studentPosition,
