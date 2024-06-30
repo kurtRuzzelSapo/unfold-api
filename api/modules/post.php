@@ -656,6 +656,7 @@ public function delete_accomplishment($id)
         $projectLink = $data['projectLink'];
         $projectDate = $data['projectDate'];
         $projectDesc = $data['projectDesc'];
+        $projectType = $data['projectType'];
         $studentId =  $data['studentID'];
 
         $uploadDirectory = "../files/projects/";
@@ -669,9 +670,9 @@ public function delete_accomplishment($id)
                 }
             }
 
-            $sql = "INSERT INTO project (projectTitle, projectDesc, projectImg, studentID, projectLink, projectDate) VALUES (?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO project (projectTitle, projectDesc, projectImg, studentID, projectLink, projectType, projectDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
-            $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename", $studentId, $projectLink, $projectDate]);
+            $statement->execute([$projectTitle, $projectDesc, "/files/projects/$filename", $studentId, $projectLink, $projectType, $projectDate]);
 
             return $this->sendPayload(null, "success", "Successfully added records.", null);
         } catch (\PDOException $e) {
@@ -687,6 +688,7 @@ public function delete_accomplishment($id)
     $projectId = $data['projectID'];
     $projectTitle = $data['projectTitle'];
     $projectLink = $data['projectLink'];
+    $projectType = $data['projectType'];
     $projectDate = $data['projectDate'];
     $projectDesc = $data['projectDesc'];
   
@@ -706,12 +708,12 @@ public function delete_accomplishment($id)
 
         // If a new image was uploaded, include it in the update query
         if ($filename) {
-            $sql = "UPDATE project SET projectTitle = ?, projectDesc = ?, projectImg = ?, projectLink = ?, projectDate = ? WHERE projectID = ?";
-            $params = [$projectTitle, $projectDesc, "/files/projects/$filename",  $projectLink, $projectDate, $projectId];
+            $sql = "UPDATE project SET projectTitle = ?, projectDesc = ?, projectImg = ?, projectLink = ?, projectType = ?, projectDate = ? WHERE projectID = ?";
+            $params = [$projectTitle, $projectDesc, "/files/projects/$filename",  $projectLink, $projectType, $projectDate,  $projectId];
         } else {
             // If no new image was uploaded, do not update the projectImg field
-            $sql = "UPDATE project SET projectTitle = ?, projectDesc = ?, projectLink = ?, projectDate = ? WHERE projectID = ?";
-            $params = [$projectTitle, $projectDesc,  $projectLink, $projectDate, $projectId];
+            $sql = "UPDATE project SET projectTitle = ?, projectDesc = ?, projectLink = ?, projectType = ?, projectDate = ? WHERE projectID = ?";
+            $params = [$projectTitle, $projectDesc,  $projectLink,  $projectType, $projectDate, $projectId];
         }
 
         $statement = $this->pdo->prepare($sql);

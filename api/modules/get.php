@@ -481,6 +481,7 @@ public function get_all_projects()
                    p.projectTitle, 
                    p.projectDesc,
                    p.projectImg, 
+                    p.projectType,
                    p.projectDate, 
                    p.projectLink,
                    p.studentID,
