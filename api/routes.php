@@ -294,6 +294,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     echo json_encode($post->sendPayload(null, "error", "Service ID not provided.", null));
                 }
             break;
+            case 'delete-faculty':
+                // Check if accomplishment ID is provided in the URL
+                if (isset($request[1])) {
+                    // Call the delete_accomplishment method in Post class
+                    echo json_encode($post->delete_faculty($request[1]));
+                } else {
+                    // If accomplishment ID is not provided, return error response
+                    echo json_encode($post->sendPayload(null, "error", "Faculty ID not provided.", null));
+                }
+            break;
             case 'add-views':
                 // Check if accomplishment ID is provided in the URL
                 if (isset($request[1])) {

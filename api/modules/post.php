@@ -421,6 +421,23 @@ public function delete_contact($id)
 
     return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
 }
+public function delete_faculty($id)
+{
+    try {
+        $sql = "DELETE FROM faculty WHERE facID = ?";
+
+        $statement = $this->pdo->prepare($sql);
+
+        $statement->execute([$id]);
+
+        return $this->sendPayload(null, "success", "Successfully deleted.", null);
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        // You can choose to handle errors differently here
+    }
+
+    return $this->sendPayload(null, "Unsuccessfully", $errmsg, null);
+}
 
 
 
