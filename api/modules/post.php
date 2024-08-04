@@ -1,6 +1,8 @@
 <?php
 require_once "global.php";
 
+
+
 class Post extends GlobalMethods
 {
 
@@ -290,13 +292,14 @@ public function add_students($data)
         $skillTitle = $data['skillTitle'];
         $skillDesc = $data['skillDesc'];
         $studentId =  $data['studentID'];
+        $skillProf =  $data['skillProf'];
             try{
 
             
 
-            $sql = "INSERT INTO skills (skillTitle, skillDesc, studentID) VALUES (?, ?, ?)";
+            $sql = "INSERT INTO skills (skillTitle, skillDesc, studentID, skillProf) VALUES (?, ?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
-            $statement->execute([$skillTitle, $skillDesc, $studentId]);
+            $statement->execute([$skillTitle, $skillDesc, $studentId, $skillProf]);
 
             return $this->sendPayload(null, "success", "Successfully added records.", null);
         } catch (\PDOException $e) {
@@ -342,21 +345,22 @@ public function add_students($data)
 {
     $skillID = $data['skillID']; // Assuming you pass the skill ID for editing
     $skillTitle = $data['skillTitle'];
-    $skillDesc = $data['skillDesc'];
+    // $skillDesc = $data['skillDesc'];
+    $skillProf =  $data['skillProf'];
   
 
     try {
         // Check if the skill ID is provided for editing
         if (!empty($skillID)) {
             // If skill ID is provided, update the existing skill
-            $sql = "UPDATE skills SET skillTitle=?, skillDesc=? WHERE skillID=?";
+            $sql = "UPDATE skills SET skillTitle=?, skillProf=? WHERE skillID=?";
             $statement = $this->pdo->prepare($sql);
-            $statement->execute([$skillTitle, $skillDesc, $skillID]);
+            $statement->execute([$skillTitle, $skillProf,  $skillID]);
         } else {
             // If skill ID is not provided, it's a new skill, so insert it
-            $sql = "INSERT INTO skills (skillTitle, skillDesc) VALUES ( ?, ?)";
+            $sql = "INSERT INTO skills (skillTitle, skillProf) VALUES ( ?, ?)";
             $statement = $this->pdo->prepare($sql);
-            $statement->execute([$skillTitle, $skillDesc]);
+            $statement->execute([$skillTitle, $skillProf]);
         }
 
         return $this->sendPayload(null, "success", "Successfully updated/added records.", null);
@@ -857,16 +861,43 @@ public function add_testimony($data)
 public function add_views($id)
 {
     try {
-        $sql = "UPDATE students SET portfolioView = portfolioView + 1 WHERE studentID = ?";
-        $statement = $this->pdo->prepare($sql);
-        $statement->execute([$id]);
+        // Start session to access session variables
+        session_start();
 
-        return $this->sendPayload(null, "success", "Successfully incremented portfolio view count.", null);
+        // Initialize viewed portfolios array if not set
+        if (!isset($_SESSION['viewed_portfolios'])) {
+            $_SESSION['viewed_portfolios'] = [];
+        }
+
+        // Check if the portfolio has already been viewed in this session
+        if (!in_array($id, $_SESSION['viewed_portfolios'])) {
+            $sql = "UPDATE students SET portfolioView = portfolioView + 1 WHERE studentID = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$id]);
+
+            // Add portfolio ID to the session to mark it as viewed
+            $_SESSION['viewed_portfolios'][] = $id;
+
+            return $this->sendPayload(null, "success", "Successfully incremented portfolio view count.", null);
+        } else {
+            return $this->sendPayload(null, "info", "Portfolio already viewed in this session.", null);
+        }
     } catch (\PDOException $e) {
         $errmsg = $e->getMessage();
         return $this->sendPayload(null, "error", $errmsg, null);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 public function add_approve($id)
 {
     try {
@@ -1084,7 +1115,109 @@ public function login($data)
     }
 }
 
+// public function change_template($data) {
+//     $studentID = $data['studentID'];
+//     $templateID = $data['templateID'];
 
+//     try {
+//         // Check if student ID and template ID are provided
+//         if (!empty($studentID) && !empty($templateID)) {
+//             // Update the template for the given student ID
+//             $sql = "UPDATE students SET templateID = ? WHERE studentID = ?";
+//             $statement = $this->pdo->prepare($sql);
+//             $statement->execute([$templateID, $studentID]);
+
+//             return $this->sendPayload(null, "success", "Template successfully updated.", null);
+//         } else {
+//             return $this->sendPayload(null, "error", "Invalid student ID or template ID.", null);
+//         }
+//     } catch (\PDOException $e) {
+//         $errmsg = $e->getMessage();
+//         return $this->sendPayload(null, "error", $errmsg, null);
+//     }
+// }
+
+
+public function change_template($data) {
+    // Log the received data
+    file_put_contents('php://stderr', "Received data: " . print_r($data, true) . "\n");
+
+    // Convert array to object if necessary
+    if (is_array($data)) {
+        $data = (object) $data;
+        file_put_contents('php://stderr', "Converted array to object.\n");
+    }
+
+    // Initialize variables
+    $studentID = null;
+    $templateID = null;
+
+    // Check if data is now an object
+    if (is_object($data)) {
+        $studentID = $data->studentID ?? null;
+        $templateID = $data->templateID ?? null;
+
+        // Log the extracted IDs
+        file_put_contents('php://stderr', "Extracted studentID: " . (isset($studentID) ? $studentID : 'null') . ", templateID: " . (isset($templateID) ? $templateID : 'null') . "\n");
+    } else {
+        // Log error if data is not an object
+        file_put_contents('php://stderr', "Error: Data is not an object after conversion.\n");
+        return $this->sendPayload(null, "error", "Invalid data format.", null);
+    }
+
+    // Proceed with the database update
+    try {
+        if (!empty($studentID) && !empty($templateID)) {
+            $sql = "UPDATE students SET templateID = ? WHERE studentID = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$templateID, $studentID]);
+
+            file_put_contents('php://stderr', "Update successful for studentID: $studentID with templateID: $templateID\n");
+            return $this->sendPayload(null, "success", "Template successfully updated.", null);
+        } else {
+            file_put_contents('php://stderr', "Error: studentID or templateID is empty. studentID: " . (isset($studentID) ? $studentID : 'null') . ", templateID: " . (isset($templateID) ? $templateID : 'null') . "\n");
+            return $this->sendPayload(null, "error", "Invalid student ID or template ID.", null);
+        }
+    } catch (\PDOException $e) {
+        $errmsg = $e->getMessage();
+        file_put_contents('php://stderr', "PDOException: $errmsg\n");
+        return $this->sendPayload(null, "error", $errmsg, null);
+    }
+}
+
+
+
+
+
+
+
+
+// public function changeTemplate($data) {
+//     // Debugging: Log the received data
+//     file_put_contents('php://stderr', print_r($data, true));
+
+//     $studentID = $data['studentID'] ?? null;
+//     $templateID = $data['templateID'] ?? null;
+
+//     // Debugging: Log the values of studentID and templateID
+//     file_put_contents('php://stderr', "studentID: " . $studentID . "\n", FILE_APPEND);
+//     file_put_contents('php://stderr', "templateID: " . $templateID . "\n", FILE_APPEND);
+
+//     try {
+//         if (!empty($studentID) && !empty($templateID)) {
+//             $sql = "UPDATE students SET templateID = ? WHERE studentID = ?";
+//             $statement = $this->pdo->prepare($sql);
+//             $statement->execute([$templateID, $studentID]);
+
+//             return $this->sendPayload(null, "success", "Template successfully updated.", null);
+//         } else {
+//             return $this->sendPayload(null, "error", "Invalid student ID or template ID.", null);
+//         }
+//     } catch (\PDOException $e) {
+//         $errmsg = $e->getMessage();
+//         return $this->sendPayload(null, "error", $errmsg, null);
+//     }
+// }
 
 
 

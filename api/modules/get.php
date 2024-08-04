@@ -366,6 +366,27 @@ class Get extends GlobalMethods
         }
     }
     
+    public function get_template($data) {
+        $id = $data['id'];
+        try {
+            $sql_project = "SELECT templateID FROM students WHERE studentID = :id";
+            $stmt_project = $this->pdo->prepare($sql_project);
+            $stmt_project->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt_project->execute();
+            
+            $project = $stmt_project->fetch(PDO::FETCH_ASSOC);
+    
+            // Return the fetched data, or null if no data is found
+            return $project ? $project : null;
+        } catch (\PDOException $e) {
+            // Log the exception message
+            file_put_contents('php://stderr', "PDOException: " . $e->getMessage() . "\n");
+            
+            // Return an error response or null
+            return null;
+        }
+    }
+    
 
     // public function get_all_students()
     // {

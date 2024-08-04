@@ -112,6 +112,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'get-all-project':
                 echo json_encode($get->get_all_projects());
                 break;
+            case 'get-template':
+                echo json_encode($get->get_template($_GET));
+                break;
 
             default:
                 // Return a 403 response for unsupported requests
@@ -222,6 +225,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'edit-facPassword':
                 echo json_encode($post->edit_facPassword($_POST));
                 break;
+            case 'change-template':
+                echo json_encode($post->change_template($_POST));
+                break;
             
                 
                 
@@ -304,6 +310,20 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     echo json_encode($post->sendPayload(null, "error", "Student ID not provided.", null));
                 }
             break;
+            // case 'add-views':
+            //     // Check if both studentID and viewerID are provided in the request
+            //     if (isset($request[1]) && isset($request[2])) {
+            //         $studentID = $request[1];
+            //         $viewerID = $request[2];
+                    
+            //         // Call the add_views method in Post class with both parameters
+            //         echo json_encode($post->add_views($studentID, $viewerID));
+            //     } else {
+            //         // If either studentID or viewerID is not provided, return error response
+            //         echo json_encode($post->sendPayload(null, "error", "Student ID or Viewer ID not provided.", null));
+            //     }
+            //     break;
+            
             case 'approved':
                 // Check if accomplishment ID is provided in the URL
                 if (isset($request[1])) {
